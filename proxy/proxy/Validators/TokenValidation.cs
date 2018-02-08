@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using proxy.Data;
+using proxy.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace proxy.Validators
 {
     public class TokenValidation
     {
-        private readonly AccessTokenContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public TokenValidation(AccessTokenContext context)
+        public TokenValidation(ApplicationDbContext context)
         {
             _context = context;
         }

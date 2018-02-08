@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace proxy.Data
 {
-    [Table("AccessTokens")]
     public class AccessToken
     {
         [Key]

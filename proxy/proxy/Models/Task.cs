@@ -8,7 +8,6 @@ namespace proxy.Models
 {
     public class Task
     {
-        [Required]
         public string Id { get; set; }
         [Required]
         public string Project_id { get; set; }
