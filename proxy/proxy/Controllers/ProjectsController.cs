@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using proxy.AuthServices;
 using proxy.Models;
 using proxy.Services;
 
@@ -14,22 +15,36 @@ namespace proxy.Controllers
     public class ProjectsController : Controller
     {
         private readonly IProjectRepository _projectRepository;
+        private readonly IAuthService _authService;
 
-        public ProjectsController(IProjectRepository projectRepository)
+        public ProjectsController(IProjectRepository projectRepository, IAuthService authService)
         {
+            _authService = authService;
             _projectRepository = projectRepository;
         }
 
         [HttpGet]
-        public IEnumerable<Project> GetAll()
+        public async Task<IActionResult> GetAll([FromHeader] string token)
         {
-            return this._projectRepository.GetAll();
+            try
+            {
+                return new ObjectResult(await this._projectRepository.GetAll(token));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToAction(nameof(Authenticate));
+            }
         }
 
         [HttpGet("{id}", Name = "GetProject")]
-        public IActionResult GetById(string id)
+        public async Task<IActionResult> GetById(string id, [FromHeader] string token)
         {
-            return new ObjectResult(this._projectRepository.GetById(id));
+            Project project = await this._projectRepository.GetById(id, token);
+            if (project == null)
+            {
+                return NotFound();
+            }
+            return new ObjectResult(project);
         }
 
         [HttpPost]
@@ -48,6 +63,12 @@ namespace proxy.Controllers
         public IActionResult Delete(string id)
         {
             return new NoContentResult();
+        }
+
+        [HttpPost("[action]")]
+        public async Task<string> Authenticate(string login, string password)
+        {
+            return await _authService.createAuthCredentials(login, password);
         }
     }
 }

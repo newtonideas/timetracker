@@ -10,10 +10,10 @@ namespace proxy.Models
     {
         public string Id { get; set; }
         [Required]
-        public DateTime TimeStarted { get; set; }
+        public DateTime Start_on { get; set; }
         [Required]
-        public DateTime TimeFinished { get; set; }
+        public DateTime Finish_on { get; set; }
         [Required]
-        public string Status { get; set; }
+        public string Title { get; set; }
     }
 }

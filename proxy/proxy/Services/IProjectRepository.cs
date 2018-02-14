@@ -8,8 +8,8 @@ namespace proxy.Services
 {
     public interface IProjectRepository
     {
-        IEnumerable<Project> GetAll();
-        Project GetById(string id);
+        Task<IEnumerable<Project>> GetAll(string token);
+        Task<Project> GetById(string id, string token);
         void Create(Project project);
         void Update(Project project);
         void Delete(string id);

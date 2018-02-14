@@ -72,7 +72,7 @@ namespace proxy.Services {
             throw new NotImplementedException();
         }
 
-        public async System.Threading.Tasks.Task<string> generateRequest(string URI, Dictionary<string, string> authCookies)
+        public async Task<string> generateRequest(string URI, Dictionary<string, string> authCookies)
         {
             using (var client = new HttpClient())
             {
