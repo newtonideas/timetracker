@@ -7,6 +7,7 @@ using proxy.Services;
 using proxy.Models;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using proxy.AuthServices;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,16 +17,12 @@ namespace proxy.Controllers
     public class UsersController : Controller
     {
         private readonly IUserRepository _userRepository;
+        private readonly IAuthService _authService;
 
-        public UsersController(IUserRepository userRepository)
+        public UsersController(IUserRepository userRepository, IAuthService authService)
         {
+            _authService = authService;
             _userRepository = userRepository;
-        }
-
-        [HttpPost("[action]")]
-        public async Task<Dictionary<string, string>> Authenticate(string login, string password)
-        {
-            return await this._userRepository.Authenticate(login, password);
         }
 
         [HttpGet]

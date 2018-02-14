@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using proxy.AuthServices;
 using proxy.Models;
 using System;
 using System.Collections.Generic;

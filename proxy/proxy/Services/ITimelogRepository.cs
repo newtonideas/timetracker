@@ -8,8 +8,8 @@ namespace proxy.Services
 {
     public interface ITimelogRepository
     {
-        IEnumerable<Timelog> GetAll();
-        Timelog GetById(string id);
+        Task<IEnumerable<Timelog>> GetAll(string token);
+        Task<Timelog> GetById(string id, string token);
         void Create(Timelog timelog);
         void Update(Timelog timelog);
         void Delete(string id);

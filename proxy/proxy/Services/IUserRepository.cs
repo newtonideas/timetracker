@@ -9,7 +9,6 @@ namespace proxy.Services
 {
     public interface IUserRepository
     {
-        Task<Dictionary<string, string>> Authenticate(string login, string password);
         IEnumerable<User> GetAll();
         User GetById(long id);
         void Create(User user);

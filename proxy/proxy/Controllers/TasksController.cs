@@ -4,6 +4,7 @@ using System.Linq;
 using proxy.Models;
 using Microsoft.AspNetCore.Mvc;
 using proxy.Services;
+using proxy.AuthServices;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,22 +14,34 @@ namespace proxy.Controllers
     public class TasksController : Controller
     {
         private readonly ITaskRepository _taskRepository;
+        private readonly IAuthService _authService;
 
-        public TasksController(ITaskRepository taskRepository)
+        public TasksController(ITaskRepository taskRepository, IAuthService authService)
         {
+            _authService = authService;
             _taskRepository = taskRepository;
         }
 
         [HttpGet]
-        public IEnumerable<Task> GetAll()
+        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token)
         {
-            return this._taskRepository.GetAll();
+            try
+            {
+                return new ObjectResult (await this._taskRepository.GetAll(token));
+            }catch(UnauthorizedAccessException e){
+                return RedirectToAction(nameof(Authenticate));
+            }
         }
 
         [HttpGet("{id}", Name = "GetTask")]
-        public IActionResult GetById(string id)
+        public async System.Threading.Tasks.Task<IActionResult> GetById(string id, [FromHeader] string token)
         {
-            return new ObjectResult(this._taskRepository.GetById(id));
+            Task task = await this._taskRepository.GetById(id, token);
+            if(task == null)
+            {
+                return NotFound();
+            }
+            return new ObjectResult(task);
         }
 
         [HttpPost]
@@ -47,6 +60,12 @@ namespace proxy.Controllers
         public IActionResult Delete(string id)
         {
             return new NoContentResult();
+        }
+
+        [HttpPost("[action]")]
+        public async System.Threading.Tasks.Task<string> Authenticate(string login, string password)
+        {
+            return await _authService.createAuthCredentials(login, password);
         }
     }
 }

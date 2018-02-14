@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using proxy.Services;
 using Microsoft.EntityFrameworkCore;
 using proxy.Data;
+using proxy.AuthServices;
 
 namespace proxy
 {
@@ -33,10 +34,17 @@ namespace proxy
 
             services.AddMvc();
 
+            services.AddSingleton<IConfiguration>(Configuration);
+
             services.AddTransient<IProjectRepository, ExtranetProjectsRepository>();
             services.AddTransient<ITaskRepository, ExtranetTasksRepository>();
             services.AddTransient<ITimelogRepository, ExtranetTimelogsRepository>();
             services.AddTransient<IUserRepository, ExtranetUsersRepository>();
+
+            services.AddTransient<IAuthService, ExtranetAuthService>();
+
+            services.AddTransient<ITokenStorage, DbTokenStorage>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

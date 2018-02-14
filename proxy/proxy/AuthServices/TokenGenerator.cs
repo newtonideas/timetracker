@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace proxy.Data
+namespace proxy.AuthServices
 {
     public static class TokenGenerator
     {
