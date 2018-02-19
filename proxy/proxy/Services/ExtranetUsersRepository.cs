@@ -15,7 +15,7 @@ namespace proxy.Services
     public class ExtranetUsersRepository : IUserRepository
     {
 
-        public void Create(User task)
+        public void Create(User user)
         {
             throw new NotImplementedException();
         }
@@ -35,7 +35,7 @@ namespace proxy.Services
             throw new NotImplementedException();
         }
 
-        public void Update(User task)
+        public void Update(User user)
         {
             throw new NotImplementedException();
         }

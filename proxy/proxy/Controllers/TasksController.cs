@@ -27,6 +27,7 @@ namespace proxy.Controllers
         {
             try
             {
+                if(token == null) return RedirectToAction(nameof(Authenticate));
                 return new ObjectResult (await this._taskRepository.GetAll(token));
             }catch(UnauthorizedAccessException e){
                 return RedirectToAction(nameof(Authenticate));

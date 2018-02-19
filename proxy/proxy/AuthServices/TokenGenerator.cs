@@ -11,7 +11,7 @@ namespace proxy.AuthServices
     {
         public static string GetUniqueToken(int maxSize = 15)
         {
-            char[] chars = new char[62];
+            char[] chars;
             chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
             byte[] data = new byte[1];
             using (RNGCryptoServiceProvider crypto = new RNGCryptoServiceProvider())

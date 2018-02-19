@@ -30,7 +30,7 @@ namespace proxy.Services {
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
                 //Retrieving a JSON-Object
-                var response = generateRequest("/api/ApiAlpha.ashx/w/TTI/a/TASK/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies).Result;
+                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/w/TTI/a/TASK/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
 
                 var json = JObject.Parse(response);
                 var results = json["data"].Children().ToList();
@@ -67,28 +67,6 @@ namespace proxy.Services {
             throw new NotImplementedException();
         }
 
-
-        public async System.Threading.Tasks.Task<string> generateRequest(string URI, Dictionary<string, string> authCookies)
-        {
-            using (var client = new HttpClient())
-            {
-
-                client.BaseAddress = new Uri(_config["ExtranetDomain"]);
-                client.DefaultRequestHeaders.Accept.Clear();
-
-                //Setting Cookie
-                string cookie = "XCMWSERV = default; require_ssl=true; language_code=en-US;";
-                cookie += "; ASP.NET_SessionId=" + authCookies["ASP.NET_SessionId"] + "; .auth=" + authCookies[".auth"];
-                client.DefaultRequestHeaders.Add("Cookie", cookie);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                //Getting Response
-                var response = await client.GetAsync(URI);
-                response.EnsureSuccessStatusCode();
-                var stringResult = await response.Content.ReadAsStringAsync();
-                return stringResult;
-            }
-        }
     }
 
 }

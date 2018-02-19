@@ -57,7 +57,7 @@ namespace proxy.AuthServices
                 inputs["ctl03$ctl00$ctl03$password"] = password;
 
                 var formContent = new FormUrlEncodedContent(inputs);
-                var response2 = await client.PostAsync(URI, formContent);
+                await client.PostAsync(URI, formContent);
 
                 CookieCollection cookies = handler.CookieContainer.GetCookies(new Uri(DOMAIN));
 
@@ -80,7 +80,6 @@ namespace proxy.AuthServices
         private async Task<AccessToken> saveAccessToken(Dictionary<string,string> authCookie)
         {
             var accessToken = new AccessToken() { Token = authCookie.GetValueOrDefault("token"), Auth = authCookie.GetValueOrDefault(".auth"), SessionId = authCookie.GetValueOrDefault("ASP.NET_SessionId") };
-            //_tokenStorage.getStorage().Add(accessToken);
             _tokenStorage.Add(accessToken);
             await _tokenStorage.SaveChangesAsync();
 
