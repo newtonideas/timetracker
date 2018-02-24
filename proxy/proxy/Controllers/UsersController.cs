@@ -25,6 +25,19 @@ namespace proxy.Controllers
             _userRepository = userRepository;
         }
 
+        [HttpGet("[action]")]
+        public async System.Threading.Tasks.Task<string> AccessToken(string login, string password)
+        {
+            return await AccessTokenPost(login, password);
+        }
+
+        [HttpPost]
+        [ActionName("AccessToken")]
+        public async System.Threading.Tasks.Task<string> AccessTokenPost(string login, string password)
+        {
+            return await _authService.createAuthCredentials(login, password);
+        }
+
         [HttpGet]
         public IEnumerable<User> GetAll()
         {

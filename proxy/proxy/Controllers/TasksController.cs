@@ -27,10 +27,11 @@ namespace proxy.Controllers
         {
             try
             {
-                if(token == null) return RedirectToAction(nameof(Authenticate));
+                if(token == null) return RedirectToRoute(new {controller = "Users", action="AccessToken"});
                 return new ObjectResult (await this._taskRepository.GetAll(token));
-            }catch(UnauthorizedAccessException e){
-                return RedirectToAction(nameof(Authenticate));
+            }
+            catch (UnauthorizedAccessException e){
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
         }
 
@@ -63,10 +64,5 @@ namespace proxy.Controllers
             return new NoContentResult();
         }
 
-        [HttpPost("[action]")]
-        public async System.Threading.Tasks.Task<string> Authenticate(string login, string password)
-        {
-            return await _authService.createAuthCredentials(login, password);
-        }
     }
 }
