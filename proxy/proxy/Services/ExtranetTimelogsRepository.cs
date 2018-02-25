@@ -76,9 +76,42 @@ namespace proxy.Services {
             return newTimelog;
          }
 
-        public void Delete(string id)
+        public async Task<string> Delete(string token, string id)
         {
-            throw new NotImplementedException();
+            var DOMAIN = _config["ExtranetDomain"];
+            var URI = DOMAIN + "api/ApiAlpha.ashx/tickets/multi?check_conflict=1&layout_media=ui-form";
+
+            var stringResult = "";
+
+            HttpClientHandler handler = new HttpClientHandler();
+            using (var client = new HttpClient(handler))
+            {
+                //getting authentication cookies
+                Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
+
+                client.BaseAddress = new Uri(DOMAIN);
+                client.DefaultRequestHeaders.Accept.Clear();
+
+                //adding cookies to request
+                string cookie = "XCMWSERV = default; require_ssl=true; language_code=en-US;";
+                cookie += "; ASP.NET_SessionId=" + authCookies["ASP.NET_SessionId"] + "; .auth=" + authCookies[".auth"];
+                client.DefaultRequestHeaders.Add("Cookie", cookie);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                //adding properties for new timelog
+                Dictionary<string, string> inputs = new Dictionary<string, string>();
+                inputs["process_template_id"] = "default-app-timelog";
+                inputs["id"] = id;
+
+                var requestJson = "[" + JsonConvert.SerializeObject(inputs) + "]";
+                var stringContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+                // making request
+                var response = await client.PostAsync(URI, stringContent);
+
+                stringResult = await response.Content.ReadAsStringAsync();
+            }
+            return stringResult;
         }
 
         public async Task<IEnumerable<Timelog>> GetAll(string token) {

@@ -12,6 +12,6 @@ namespace proxy.Services
         Task<Timelog> GetById(string id, string token);
         Task<Timelog> Create(string token, Timelog timelog);
         void Update(Timelog timelog);
-        void Delete(string id);
+        Task<string> Delete(string token, string id);
     }
 }

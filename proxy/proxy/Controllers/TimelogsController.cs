@@ -68,10 +68,19 @@ namespace proxy.Controllers
             return new NoContentResult();
         }
 
+
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Delete([FromHeader]string token, string id)
         {
-            return new NoContentResult();
+            try
+            {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._timelogRepository.Delete(token, id));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
         }
     }
 }
