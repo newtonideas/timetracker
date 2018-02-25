@@ -31,7 +31,7 @@ namespace proxy.Controllers
             return await AccessTokenPost(login, password);
         }
 
-        [HttpPost]
+        [HttpPost("[action]")]
         [ActionName("AccessToken")]
         public async System.Threading.Tasks.Task<string> AccessTokenPost(string login, string password)
         {

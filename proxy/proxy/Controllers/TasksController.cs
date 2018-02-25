@@ -27,10 +27,11 @@ namespace proxy.Controllers
         {
             try
             {
-                if(token == null) return RedirectToRoute(new {controller = "Users", action="AccessToken"});
+                if (token == null) return RedirectToRoute(new {controller = "Users", action="AccessToken"});
                 return new ObjectResult (await this._taskRepository.GetAll(token));
             }
-            catch (UnauthorizedAccessException e){
+            catch (UnauthorizedAccessException e)
+            {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
         }

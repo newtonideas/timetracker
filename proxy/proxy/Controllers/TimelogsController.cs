@@ -49,9 +49,17 @@ namespace proxy.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody]Timelog timelog)
+        public async Task<IActionResult> Create([FromHeader]string token, [FromBody]Timelog timelog)
         {
-            return Ok(timelog);
+            try
+            {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._timelogRepository.Create(token, timelog));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
         }
 
         [HttpPut("{id}")]

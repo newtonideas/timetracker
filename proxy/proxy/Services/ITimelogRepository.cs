@@ -10,7 +10,7 @@ namespace proxy.Services
     {
         Task<IEnumerable<Timelog>> GetAll(string token);
         Task<Timelog> GetById(string id, string token);
-        void Create(Timelog timelog);
+        Task<Timelog> Create(string token, Timelog timelog);
         void Update(Timelog timelog);
         void Delete(string id);
     }
