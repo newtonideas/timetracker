@@ -36,14 +36,14 @@ namespace proxy
 
             services.AddSingleton<IConfiguration>(Configuration);
 
-            services.AddTransient<IProjectRepository, ExtranetProjectsRepository>();
-            services.AddTransient<ITaskRepository, ExtranetTasksRepository>();
-            services.AddTransient<ITimelogRepository, ExtranetTimelogsRepository>();
-            services.AddTransient<IUserRepository, ExtranetUsersRepository>();
+            services.AddScoped<IProjectRepository, ExtranetProjectsRepository>();
+            services.AddScoped<ITaskRepository, ExtranetTasksRepository>();
+            services.AddScoped<ITimelogRepository, ExtranetTimelogsRepository>();
+            services.AddScoped<IUserRepository, ExtranetUsersRepository>();
 
-            services.AddTransient<IAuthService, ExtranetAuthService>();
+            services.AddScoped<IAuthService, ExtranetAuthService>();
 
-            services.AddTransient<ITokenStorage, DbTokenStorage>();
+            services.AddScoped<ITokenStorage, DbTokenStorage>();
 
         }
 
