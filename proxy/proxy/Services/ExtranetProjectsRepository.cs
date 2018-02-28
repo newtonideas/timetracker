@@ -35,16 +35,18 @@ namespace proxy.Services
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
                 //Retrieving a JSON-Object
-                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/w/TTI/a/WORKSPACE/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
-
+                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/a/WORKSPACE/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
                 var json = JObject.Parse(response);
-                var results = json["data"].Children().ToList();
+                var results = json["data"].Children().ToList();                
 
                 //Serialization
-                foreach (JToken t in results)
+                foreach (JObject t in results)
                 {
-                    Project project = t.ToObject<Project>();
-                    projects.Add(project);
+                    Project p = new Project();
+                    p.Id = (string)t["project_id"];
+                    p.Name = (string)t["project_title"];
+                    p.DateCreated = (DateTime)t["creation_date"];                    
+                    projects.Add(p);
                 }
 
                 return projects;

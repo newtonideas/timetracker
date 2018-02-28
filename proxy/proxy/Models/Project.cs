@@ -10,6 +10,8 @@ namespace proxy.Models
     {
         public string Id { get; set; }
         [Required]
-        public string Project_title { get; set; }
+        public string Name { get; set; }
+        [Required]
+        public DateTime DateCreated { get; set; }
     }
 }
