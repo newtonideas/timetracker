@@ -12,6 +12,6 @@ namespace proxy.Models
         [Required]
         public string Name { get; set; }
         [Required]
-        public DateTime DateCreated { get; set; }
+        public DateTime TimeCreated { get; set; }
     }
 }

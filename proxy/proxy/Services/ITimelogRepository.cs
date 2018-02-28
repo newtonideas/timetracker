@@ -8,9 +8,9 @@ namespace proxy.Services
 {
     public interface ITimelogRepository
     {
-        Task<IEnumerable<Timelog>> GetAll(string token);
-        Task<Timelog> GetById(string id, string token);
-        Task<Timelog> Create(string token, Timelog timelog);
+        Task<IEnumerable<Timelog>> GetAll(string token, string project_id);
+        Task<Timelog> GetById(string id, string token, string project_id);
+        Task<Timelog> Create(string token, Timelog timelog, string project_id);
         void Update(Timelog timelog);
         Task<string> Delete(string token, string id);
     }

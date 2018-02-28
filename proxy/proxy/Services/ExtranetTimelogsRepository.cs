@@ -24,9 +24,13 @@ namespace proxy.Services {
             _authService = authService;
         }
 
-        public async Task<Timelog> Create(string token, Timelog timelog)
+        public async Task<Timelog> Create(string token, Timelog timelog, string project_id)
         {
             Timelog newTimelog = timelog;
+            if (newTimelog.Project_id != project_id)
+            {
+                newTimelog.Project_id = project_id;
+            }
 
 
             var DOMAIN = _config["ExtranetDomain"];
@@ -114,7 +118,7 @@ namespace proxy.Services {
             return stringResult;
         }
 
-        public async Task<IEnumerable<Timelog>> GetAll(string token) {
+        public async Task<IEnumerable<Timelog>> GetAll(string token, string project_id) {
             using (var client = new HttpClient()) {
 
 
@@ -123,24 +127,47 @@ namespace proxy.Services {
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
                 //Retrieving a JSON-Object
-                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/w/TTI/a/TIMELOG/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
+                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/w/TIMELOG/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
 
                 var json = JObject.Parse(response);
                 var results = json["data"].Children().ToList();
 
                 //Serialization
-                foreach (JToken t in results) {
-                    Timelog timelog = t.ToObject<Timelog>();
-                    timelogs.Add(timelog);
+                foreach (JObject t in results) {
+
+                    var projectId = (string)t["project_id"];
+
+                    if (projectId == project_id)
+                    {
+
+                        Timelog timelog = new Timelog();
+                        timelog.Id = (string)t["id"];
+                        timelog.Title = (string)t["title"];
+                        timelog.User_id = (string)t["accountable_account_id"];
+                        timelog.Project_id = projectId;
+                        timelog.Task_id = (string)t["parent_id"];
+
+                        try
+                        {
+                            timelog.Start_on = (DateTime)t["start_on"];
+                        }
+                        catch (ArgumentException) { }
+                        try
+                        {
+                            timelog.Finish_on = (DateTime)t["finish_on"];
+                        }
+                        catch (ArgumentException) { }
+                        timelogs.Add(timelog);
+                    }
                 }
                     
                 return timelogs;
             }
         }
 
-        public async Task<Timelog> GetById(string id, string token)
+        public async Task<Timelog> GetById(string id, string token, string project_id)
         {
-            var allTimelogs = await GetAll(token);
+            var allTimelogs = await GetAll(token, project_id);
             foreach (Timelog t in allTimelogs) {
                 if (t.Id == id) {
                     return t;

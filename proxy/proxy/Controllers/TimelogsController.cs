@@ -11,7 +11,7 @@ using proxy.AuthServices;
 
 namespace proxy.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/projects/{project_id}/[controller]")]
     public class TimelogsController : Controller
     {
         private readonly ITimelogRepository _timelogRepository;
@@ -24,12 +24,12 @@ namespace proxy.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromHeader] string token)
+        public async Task<IActionResult> GetAll([FromHeader] string token, [FromRoute]string project_id)
         {
             try
             {
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
-                return new ObjectResult (await this._timelogRepository.GetAll(token));
+                return new ObjectResult (await this._timelogRepository.GetAll(token, project_id));
             }
             catch (UnauthorizedAccessException e)
             {
@@ -38,9 +38,9 @@ namespace proxy.Controllers
         }
 
         [HttpGet("{id}", Name = "GetTimelog")]
-        public async Task<IActionResult> GetById(string id, [FromHeader] string token)
+        public async Task<IActionResult> GetById(string id, [FromHeader] string token, [FromRoute]string project_id)
         {
-            Timelog timelog = await this._timelogRepository.GetById(id, token);
+            Timelog timelog = await this._timelogRepository.GetById(id, token, project_id);
             if (timelog == null)
             {
                 return NotFound();
@@ -49,12 +49,12 @@ namespace proxy.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromHeader]string token, [FromBody]Timelog timelog)
+        public async Task<IActionResult> Create([FromHeader]string token, [FromBody]Timelog timelog, [FromRoute]string project_id)
         {
             try
             {
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
-                return new ObjectResult(await this._timelogRepository.Create(token, timelog));
+                return new ObjectResult(await this._timelogRepository.Create(token, timelog, project_id));
             }
             catch (UnauthorizedAccessException e)
             {
@@ -70,7 +70,7 @@ namespace proxy.Controllers
 
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromHeader]string token, string id)
+        public async Task<IActionResult> Delete([FromHeader]string token, string id, [FromRoute]string project_id)
         {
             try
             {

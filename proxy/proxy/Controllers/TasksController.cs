@@ -10,7 +10,7 @@ using proxy.AuthServices;
 
 namespace proxy.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/projects/{project_id}/[controller]")]
     public class TasksController : Controller
     {
         private readonly ITaskRepository _taskRepository;
@@ -23,12 +23,12 @@ namespace proxy.Controllers
         }
 
         [HttpGet]
-        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token)
+        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token, [FromRoute] string project_id)
         {
             try
             {
                 if (token == null) return RedirectToRoute(new {controller = "Users", action="AccessToken"});
-                return new ObjectResult (await this._taskRepository.GetAll(token));
+                return new ObjectResult (await this._taskRepository.GetAll(token, project_id));
             }
             catch (UnauthorizedAccessException e)
             {
@@ -37,9 +37,9 @@ namespace proxy.Controllers
         }
 
         [HttpGet("{id}", Name = "GetTask")]
-        public async System.Threading.Tasks.Task<IActionResult> GetById(string id, [FromHeader] string token)
+        public async System.Threading.Tasks.Task<IActionResult> GetById(string id, [FromHeader] string token, [FromRoute]string project_id)
         {
-            Task task = await this._taskRepository.GetById(id, token);
+            Task task = await this._taskRepository.GetById(id, token, project_id);
             if(task == null)
             {
                 return NotFound();

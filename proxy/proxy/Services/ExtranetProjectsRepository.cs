@@ -42,11 +42,11 @@ namespace proxy.Services
                 //Serialization
                 foreach (JObject t in results)
                 {
-                    Project p = new Project();
-                    p.Id = (string)t["project_id"];
-                    p.Name = (string)t["project_title"];
-                    p.DateCreated = (DateTime)t["creation_date"];                    
-                    projects.Add(p);
+                    Project project = new Project();
+                    project.Id = (string)t["project_id"];
+                    project.Name = (string)t["project_title"];
+                    project.TimeCreated = (DateTime)t["creation_date"];                    
+                    projects.Add(project);
                 }
 
                 return projects;
