@@ -39,15 +39,48 @@ namespace proxy.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<User> GetAll()
+        public async Task<IActionResult> GetAll([FromHeader] string token)
         {
-            return this._userRepository.GetAll();
+            try
+            {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._userRepository.GetAll(token));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
+            
+        }
+
+        
+        [HttpGet("projects/{project_id}/users")]
+        public async Task<IActionResult> GetAllFromProject([FromHeader] string token, string project_id)
+        {
+            try
+            {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._userRepository.GetAllFromProject(token, project_id));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
+
         }
 
         [HttpGet("{id}", Name = "GetUser")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(string id, [FromHeader]string token)
         {
-            return new ObjectResult(this._userRepository.GetById(id));
+            try
+            {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._userRepository.GetById(id, token));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
         }
 
         [HttpPost]

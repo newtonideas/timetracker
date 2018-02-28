@@ -9,8 +9,9 @@ namespace proxy.Services
 {
     public interface IUserRepository
     {
-        IEnumerable<User> GetAll();
-        User GetById(long id);
+        Task<IEnumerable<User>> GetAll(string token);
+        Task<IEnumerable<User>> GetAllFromProject(string token, string project_id);
+        Task<User> GetById(string id, string token);
         void Create(User user);
         void Update(User user);
         void Delete(long id);

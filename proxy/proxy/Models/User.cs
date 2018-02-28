@@ -8,9 +8,9 @@ namespace proxy.Models
 {
     public class User
     {
-        public long Id { get; set; }
+        public string Id { get; set; }
         [Required]
-        public string Username { get; set; }
+        public string Name { get; set; }
         [Required]
         [EmailAddress]
         public string Email { get; set; }
