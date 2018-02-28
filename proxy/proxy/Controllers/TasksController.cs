@@ -47,10 +47,32 @@ namespace proxy.Controllers
             return new ObjectResult(task);
         }
 
-        [HttpPost]
-        public IActionResult Create([FromBody]Task task)
+        [HttpGet("[action]")]
+        public async System.Threading.Tasks.Task<IActionResult> createTest([FromRoute] string project_id)
         {
-            return Ok(task);
+            string token = "cgqJ48yzIFtW7G8";
+            Task t = new Task();
+            t.Id = "null";
+            t.Name = "It works!";
+            t.Description = "babababa";
+            t.Priority = "normal";
+            t.Status = "submitted";
+
+            return new ObjectResult(await Create(token, t, project_id, "e981a503-1536-4a48-920d-6c464f596cbc", "dad1e3d4-d72f-4446-a6f5-cbaefd5fe283"));
+        }
+
+        [HttpPost]
+        public async System.Threading.Tasks.Task<IActionResult> Create([FromHeader]string token, [FromBody]Task task, [FromRoute]string project_id, string create_by_id, string responsible_user_id)
+        {
+            try
+            {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._taskRepository.Create(token, task, project_id, create_by_id, responsible_user_id));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
         }
 
         [HttpPut("{id}")]
@@ -59,10 +81,19 @@ namespace proxy.Controllers
             return new NoContentResult();
         }
 
+
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public async System.Threading.Tasks.Task<IActionResult> Delete([FromHeader]string token, string id, [FromRoute]string project_id)
         {
-            return new NoContentResult();
+            try
+            {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._taskRepository.Delete(token, id));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
         }
 
     }

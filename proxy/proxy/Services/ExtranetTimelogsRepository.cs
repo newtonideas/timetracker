@@ -102,7 +102,7 @@ namespace proxy.Services {
                 client.DefaultRequestHeaders.Add("Cookie", cookie);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                //adding properties for new timelog
+                
                 Dictionary<string, string> inputs = new Dictionary<string, string>();
                 inputs["process_template_id"] = "default-app-timelog";
                 inputs["id"] = id;
