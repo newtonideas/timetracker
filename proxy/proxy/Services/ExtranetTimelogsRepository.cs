@@ -176,9 +176,59 @@ namespace proxy.Services {
             return null;
         }
 
-        public void Update(Timelog timelog)
+        public async Task<Timelog> Update(string token, string id, Timelog timelog, string project_id)
         {
-            throw new NotImplementedException();
+            Timelog editedTimelog = timelog;
+            if (editedTimelog.Project_id != project_id)
+            {
+                editedTimelog.Project_id = project_id;
+            }
+
+            if (editedTimelog.Id != id)
+            {
+                editedTimelog.Id = id;
+            }
+
+
+            var DOMAIN = _config["ExtranetDomain"];
+            var URI = DOMAIN + "/api/ApiAlpha.ashx/tickets/multi?check_conflict=1&layout_media=ui-form";
+
+
+            HttpClientHandler handler = new HttpClientHandler();
+            using (var client = new HttpClient(handler))
+            {
+                //getting authentication cookies
+                Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
+
+                client.BaseAddress = new Uri(DOMAIN);
+                client.DefaultRequestHeaders.Accept.Clear();
+
+                //adding cookies to request
+                string cookie = "XCMWSERV = default; require_ssl=true; language_code=en-US;";
+                cookie += "; ASP.NET_SessionId=" + authCookies["ASP.NET_SessionId"] + "; .auth=" + authCookies[".auth"];
+                client.DefaultRequestHeaders.Add("Cookie", cookie);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                //adding properties for editing timelog
+                Dictionary<string, string> inputs = new Dictionary<string, string>();
+                inputs["id"] = editedTimelog.Id;
+                inputs["accountable_account_id"] = editedTimelog.User_id;
+                inputs["project_id"] = editedTimelog.Project_id;
+                inputs["parent_id"] = editedTimelog.Task_id;
+                inputs["process_template_id"] = "default-app-timelog";
+                inputs["title"] = editedTimelog.Title;
+                inputs["start_on"] = editedTimelog.Start_on.ToString();
+                inputs["finish_on"] = editedTimelog.Finish_on.ToString();
+                inputs["transition"] = "edit";
+
+                var requestJson = "[" + JsonConvert.SerializeObject(inputs) + "]";
+                var stringContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+                // making request
+                var response = await client.PostAsync(URI, stringContent);
+            }
+
+            return editedTimelog;
         }
     }
 }

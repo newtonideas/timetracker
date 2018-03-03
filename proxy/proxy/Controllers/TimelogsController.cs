@@ -62,10 +62,38 @@ namespace proxy.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Update(string id, [FromBody]Timelog timelog)
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> updateTest([FromRoute] string project_id)
         {
-            return new NoContentResult();
+            string token = "cgqJ48yzIFtW7G8";
+            var id = "8cb3d17f-553a-41da-a902-49e5601cb57d";
+            Timelog t = new Timelog();
+            t.Id = "8cb3d17f-553a-41da-a902-49e5601cb57d";
+            t.Project_id = "87b47424-1c46-473b-81c1-a1b52123b7ce";
+            t.Task_id = "49d2dc7f - e9df - 4b10 - ac82 - 5c8cc0220ee1";
+            t.User_id = "e981a503-1536-4a48-920d-6c464f596cbc";
+            t.Title = "eee rock";
+            DateTime startDate = new DateTime(2018, 3, 3, 10, 30, 16);
+            DateTime endDate = new DateTime(2018, 3, 3, 10, 45, 16);
+            t.Start_on = startDate;
+            t.Finish_on = endDate;
+            return new ObjectResult(await Update(token, id, t, project_id));
+
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(string token, string id, [FromBody]Timelog timelog, [FromRoute]string project_id)
+        {
+            try
+            {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._timelogRepository.Update(token, id, timelog, project_id));
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
         }
 
 

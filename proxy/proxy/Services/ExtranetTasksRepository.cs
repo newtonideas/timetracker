@@ -69,7 +69,7 @@ namespace proxy.Services {
             }
             return null;
         }
-        public async System.Threading.Tasks.Task<Task> Create(string token, Task task, string project_id, string create_by_id, string responsible_user_id)
+        public async System.Threading.Tasks.Task<Task> Create(string token, Task task, string project_id, string created_by_id, string responsible_user_id)
         {
             Task newTask = task;
             if (newTask.ProjectId != project_id)
@@ -99,7 +99,7 @@ namespace proxy.Services {
 
                 //adding properties for new task
                 Dictionary<string, string> inputs = new Dictionary<string, string>();
-                inputs["accountable_account_id"] = create_by_id;
+                inputs["accountable_account_id"] = created_by_id;
                 inputs["keeper_id"] = responsible_user_id;
                 inputs["project_id"] = newTask.ProjectId;
                 inputs["title"] = newTask.Name;
@@ -125,10 +125,63 @@ namespace proxy.Services {
 
             return newTask;
         }
-        public void Update(Task task)
+        public async System.Threading.Tasks.Task<Task> Update(string token, string id, Task task, string project_id, string created_by_id, string responsible_user_id)
         {
-            throw new NotImplementedException();
+            Task editedTask = task;
+            if (editedTask.ProjectId != project_id)
+            {
+                editedTask.ProjectId = project_id;
+            }
+
+            if (editedTask.Id != id)
+            {
+                editedTask.Id = id;
+            }
+
+            var DOMAIN = _config["ExtranetDomain"];
+            var URI = DOMAIN + "/api/ApiAlpha.ashx/tickets/multi?check_conflict=1&layout_media=ui-form";
+
+
+            HttpClientHandler handler = new HttpClientHandler();
+            using (var client = new HttpClient(handler))
+            {
+                //getting authentication cookies
+                Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
+
+                client.BaseAddress = new Uri(DOMAIN);
+                client.DefaultRequestHeaders.Accept.Clear();
+
+                //adding cookies to request
+                string cookie = "XCMWSERV = default; require_ssl=true; language_code=en-US;";
+                cookie += "; ASP.NET_SessionId=" + authCookies["ASP.NET_SessionId"] + "; .auth=" + authCookies[".auth"];
+                client.DefaultRequestHeaders.Add("Cookie", cookie);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                //adding properties for editing task
+                Dictionary<string, string> inputs = new Dictionary<string, string>();
+                inputs["id"] = editedTask.Id;
+                inputs["accountable_account_id"] = created_by_id;
+                inputs["keeper_id"] = responsible_user_id;
+                inputs["project_id"] = editedTask.ProjectId;
+                inputs["title"] = editedTask.Name;
+                inputs["description"] = editedTask.Description;
+                inputs["process_template_id"] = "default-transaction-process-template";
+                inputs["transition"] = "edit";
+                inputs["state"] = editedTask.Status;
+                inputs["priority"] = editedTask.Priority;
+
+                var requestJson = "[" + JsonConvert.SerializeObject(inputs) + "]";
+                var stringContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+                // making request
+                var response = await client.PostAsync(URI, stringContent);
+
+            }
+
+            return editedTask;
         }
+
+
         public async System.Threading.Tasks.Task<string> Delete(string token, string id)
         {
             var DOMAIN = _config["ExtranetDomain"];
