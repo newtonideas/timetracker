@@ -1,4 +1,4 @@
-﻿using System;
+﻿  using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,7 +55,7 @@ namespace proxy.Services
                 foreach (JObject t in results)
                 {
                     var people_list = t["__people_lists"]["c_participants"].Children().ToList();
-                    foreach (JObject u in people_list)
+                    foreach (var u in people_list)
                     {
                         bool userAlreadyAdded = users.Any(item => item.Id == (string)u["id"]);
                         if (!userAlreadyAdded)
@@ -73,38 +73,32 @@ namespace proxy.Services
             }
         }
 
-        public async Task<IEnumerable<User>> GetAllFromProject(string token, string project_id)
+        public async Task<IEnumerable<User>> GetAllByProject(string token, string project_id)
         {
             using (var client = new HttpClient())
             {
 
                 List<User> users = new List<User>();
+                var project_alias = (await (new ExtranetProjectsRepository(_authService, _config)).GetById(project_id, token)).Alias;
 
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
                 //Retrieving a JSON-Object
-                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/a/WORKSPACE/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
+                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/projects/" + project_alias + "!BLA", authCookies, _config).Result;
                 var json = JObject.Parse(response);
-                var results = json["data"].Children().ToList();
+                var workspaceUsers = json["workspace_users"].Children().ToList();
+                var company = (string)json["workspace_details"]["company_title"];
 
                 //Serialization
-                foreach (JObject t in results)
-                {
-                    if ((string)t["project_id"] == project_id)
-                    {
-
-                        var people_list = t["__people_lists"]["c_participants"].Children().ToList();
-
-                        foreach (JObject u in people_list)
-                        {
-                            User user = new User();
-                            user.Id = (string)u["id"];
-                            user.Email = (string)u["email"];
-                            user.Name = (string)u["first_name"];
-                            user.Name += " " + (string)u["last_name"];
-                            users.Add(user);
-                        }
-                    }
+                foreach (var u in workspaceUsers) {
+                    var user = new User();
+                    user.Id = (string)u["id"];
+                    user.Name = (string)u["name"];
+                    //user.Email = "";// (string)u["email"];
+                    //user.Password = "";
+                    user.Company = company;
+                    //user.Phone = "";
+                    users.Add(user);
                 }
                 return users;
             }
@@ -113,7 +107,7 @@ namespace proxy.Services
         public async Task<User> GetById(string id, string token)
         {
             var allUsers = await GetAll(token);
-            foreach (User u in allUsers)
+            foreach (var u in allUsers)
             {
                 if (u.Id == id)
                 {
