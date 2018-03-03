@@ -13,5 +13,6 @@ namespace proxy.Models
         public string Name { get; set; }
         [Required]
         public DateTime TimeCreated { get; set; }
+        public string Alias { get; set; }
     }
 }

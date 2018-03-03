@@ -22,8 +22,19 @@ namespace proxy.Controllers
             _taskRepository = taskRepository;
         }
 
+        [Route("~/api/tasks")]
+        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token) {
+            try {
+                if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                return new ObjectResult(await this._taskRepository.GetAll(token));
+            }
+            catch (UnauthorizedAccessException e) {
+                return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+            }
+        }
+
         [HttpGet]
-        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token, [FromRoute] string project_id)
+        public async System.Threading.Tasks.Task<IActionResult> GetAllByProjectId([FromHeader] string token, [FromRoute] string project_id)
         {
             try
             {

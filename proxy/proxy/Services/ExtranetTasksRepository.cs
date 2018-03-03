@@ -22,39 +22,69 @@ namespace proxy.Services {
             _authService = authService;
         }
 
-        public async System.Threading.Tasks.Task<IEnumerable<Task>> GetAll(string token, string project_id)
-        {
-            using (var client = new HttpClient())
-            {
+        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAll(string token) {
+            using (var client = new HttpClient()) {
 
                 List<Task> tasks = new List<Task>();
-                
+
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
-                //Retrieving a JSON-Object
+                //Retrieving an array of JSON-objects
                 var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx//pid/default-transaction-process-template/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
                 var json = JObject.Parse(response);
                 var results = json["data"].Children().ToList();
 
                 //Serialization
-                foreach (JObject t in results)
-                {
-                    var projectId = (string)t["project_id"];
-
-                    if (projectId == project_id) {
-
-                        Task task = new Task();
-                        task.Id = (string)t["id"];
-                        task.ProjectId = projectId;
-                        task.Name = (string)t["title"];
-                        task.Description = "";
-                        task.Status = (string)t["state"];
-                        task.Priority = (string)t["priority"];
-                        task.TimeCreated = (DateTime)t["creation_date"];
-                        tasks.Add(task);
-
-                    }
+                foreach (var t in results) {
+                    Task task = new Task();
+                    task.Id = (string)t["id"];
+                    task.ProjectId = (string)t["project_id"];
+                    task.Name = (string)t["title"];
+                    task.Status = (string)t["state"];
+                    task.Priority = (string)t["priority"];
+                    task.TimeCreated = (DateTime)t["creation_date"];
+                    //var descrAddress = "/api/ApiAlpha.ashx/w/" + (string)t["project_alias"] + "/a/TASK/tickets/list?expandRecord=true&layout_media=ui-form&listOfFields=ALL&rlx=id%3D%22" + task.Id + "%22&skipAncestors=true"; //var descrResponse = RequestGenerator.generateRequest(descrAddress, authCookies, _config).Result;
+                    task.Description = ""; // (string)((JArray.Parse(descrResponse))[0]["description"]);
+                    tasks.Add(task);
                 }
+
+                return tasks;
+            }
+        }
+
+        public async System.Threading.Tasks.Task<IEnumerable<Task>> GetAll(string token, string project_id)
+        {
+            using (var client = new HttpClient())
+            {
+                List<Task> tasks = new List<Task>();
+                var project_alias = (await (new ExtranetProjectsRepository(_authService, _config)).GetById(project_id, token)).Alias;
+
+                Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
+
+                //Retrieving an array of JSON-objects
+                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/w/" + project_alias + "/a/TASK/tickets/list?expandRecord=true&layout_media=ui-form&listOfFields=ALL", authCookies, _config).Result;
+                var json = JArray.Parse(response);
+
+                //Serialization
+                foreach (var t in json) {
+                    Task task = new Task();
+                    task.Id = (string)t["id"];
+                    task.ProjectId = (string)t["project_id"];
+                    task.Name = (string)t["title"];
+                    task.Description = (string)t["description"];
+                    task.Status = (string)t["state"];
+                    task.Priority = (string)t["priority"];
+                    task.TimeCreated = (DateTime)t["creation_date"];
+                    tasks.Add(task);
+                }
+
+                /*
+                var allTasks = await GetAll(token);
+                foreach (Task t in allTasks) {
+                    if (t.ProjectId == project_id) {
+                        tasks.Add(t);
+                    }
+                }*/
 
                 return tasks;
             }

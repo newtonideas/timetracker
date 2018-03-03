@@ -45,7 +45,8 @@ namespace proxy.Services
                     Project project = new Project();
                     project.Id = (string)t["project_id"];
                     project.Name = (string)t["project_title"];
-                    project.TimeCreated = (DateTime)t["creation_date"];                    
+                    project.TimeCreated = (DateTime)t["creation_date"];
+                    project.Alias = (string)t["project_alias"];
                     projects.Add(project);
                 }
 
