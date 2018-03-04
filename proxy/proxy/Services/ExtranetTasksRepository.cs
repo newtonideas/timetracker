@@ -52,7 +52,7 @@ namespace proxy.Services {
             }
         }
 
-        public async System.Threading.Tasks.Task<IEnumerable<Task>> GetAll(string token, string project_id)
+        public async System.Threading.Tasks.Task<IEnumerable<Task>> GetAllByProject(string token, string project_id)
         {
             using (var client = new HttpClient())
             {
@@ -91,7 +91,7 @@ namespace proxy.Services {
         }
 
         public async System.Threading.Tasks.Task<Task> GetById(string id, string token, string project_id) {
-            var allTasks = await GetAll(token, project_id);
+            var allTasks = await GetAllByProject(token, project_id);
             foreach (Task t in allTasks) {
                 if (t.Id == id) {
                     return t;

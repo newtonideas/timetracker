@@ -47,27 +47,17 @@ namespace proxy.Services
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
                 //Retrieving a JSON-Object
-                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/a/WORKSPACE/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
+                var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/projects/!BLA", authCookies, _config).Result;
                 var json = JObject.Parse(response);
-                var results = json["data"].Children().ToList();
+                var workspaceUsers = json["workspace_users"].Children().ToList();
 
                 //Serialization
-                foreach (JObject t in results)
+                foreach (var u in workspaceUsers)
                 {
-                    var people_list = t["__people_lists"]["c_participants"].Children().ToList();
-                    foreach (var u in people_list)
-                    {
-                        bool userAlreadyAdded = users.Any(item => item.Id == (string)u["id"]);
-                        if (!userAlreadyAdded)
-                        {
-                            User user = new User();
-                            user.Id = (string)u["id"];
-                            user.Email = (string)u["email"];
-                            user.Name = (string)u["first_name"];
-                            user.Name += " " + (string)u["last_name"];
-                            users.Add(user);
-                        }
-                    }
+                    var user = new User();
+                    user.Id = (string)u["id"];
+                    user.Name = (string)u["name"];
+                    users.Add(user);
                 }
                 return users;
             }
