@@ -23,9 +23,10 @@ namespace proxy.Controllers
         }
 
         [Route("~/api/tasks")]
-        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token) {
+        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token, string from, string till) {
             try {
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                if (!(string.IsNullOrEmpty(from) && string.IsNullOrEmpty(till))) return new ObjectResult(await this._taskRepository.GetAllByPeriod(token, from, till));
                 return new ObjectResult(await this._taskRepository.GetAll(token));
             }
             catch (UnauthorizedAccessException e) {
@@ -34,11 +35,12 @@ namespace proxy.Controllers
         }
 
         [HttpGet]
-        public async System.Threading.Tasks.Task<IActionResult> GetAllByProject([FromHeader] string token, [FromRoute] string project_id)
+        public async System.Threading.Tasks.Task<IActionResult> GetAllByProject([FromHeader] string token, [FromRoute] string project_id, string from, string till)
         {
             try
             {
                 if (token == null) return RedirectToRoute(new {controller = "Users", action="AccessToken"});
+                if (!(string.IsNullOrEmpty(from) && string.IsNullOrEmpty(till))) return new ObjectResult(await this._taskRepository.GetAllByProjectByPeriod(token, project_id, from, till));
                 return new ObjectResult (await this._taskRepository.GetAllByProject(token, project_id));
             }
             catch (UnauthorizedAccessException e)

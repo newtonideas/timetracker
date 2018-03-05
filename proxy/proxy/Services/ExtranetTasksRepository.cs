@@ -90,6 +90,47 @@ namespace proxy.Services {
             }
         }
 
+        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAllByPeriod(string token, string from, string till) {
+            using (var client = new HttpClient()) {
+                var allTasks = await GetAll(token);
+                return RefineByPeriod(allTasks, from, till);
+            }
+        }
+
+        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAllByProjectByPeriod(string token, string project_id, string from, string till) {
+            using (var client = new HttpClient()) {
+                var allTasks = await GetAllByProject(token, project_id);
+                return RefineByPeriod(allTasks, from, till);
+            }
+        }
+
+        private IEnumerable<Models.Task> RefineByPeriod(IEnumerable<Models.Task> allTasks, string from, string till) {
+            using (var client = new HttpClient()) {
+                List<Task> tasks = new List<Task>();
+
+                int fromYear = 0; int fromMonth = 0; int fromDay = 0;
+                int tillYear = 0; int tillMonth = 0; int tillDay = 0;
+                Int32.TryParse(from.Substring(0, 4), out fromYear);
+                Int32.TryParse(from.Substring(5, 2), out fromMonth);
+                Int32.TryParse(from.Substring(8, 2), out fromDay);
+                Int32.TryParse(till.Substring(0, 4), out tillYear);
+                Int32.TryParse(till.Substring(5, 2), out tillMonth);
+                Int32.TryParse(till.Substring(8, 2), out tillDay);
+
+                var fromDate = new DateTime(fromYear, fromMonth, fromDay, 0, 0, 0);
+                var tillDate = new DateTime(tillYear, tillMonth, tillDay, 23, 59, 59);
+
+                foreach (var t in allTasks) {
+                    if (DateTime.Compare(t.TimeCreated, fromDate) >= 0
+                        && DateTime.Compare(t.TimeCreated, tillDate) <= 0) {
+                        tasks.Add(t);
+                    }
+                }
+
+                return tasks;
+            }
+        }
+
         public async System.Threading.Tasks.Task<Task> GetById(string id, string token, string project_id) {
             var allTasks = await GetAllByProject(token, project_id);
             foreach (Task t in allTasks) {
@@ -99,6 +140,7 @@ namespace proxy.Services {
             }
             return null;
         }
+
         public async System.Threading.Tasks.Task<Task> Create(string token, Task task, string project_id, string created_by_id, string responsible_user_id)
         {
             Task newTask = task;
@@ -155,6 +197,7 @@ namespace proxy.Services {
 
             return newTask;
         }
+
         public async System.Threading.Tasks.Task<Task> Update(string token, string id, Task task, string project_id, string created_by_id, string responsible_user_id)
         {
             Task editedTask = task;
@@ -210,7 +253,6 @@ namespace proxy.Services {
 
             return editedTask;
         }
-
 
         public async System.Threading.Tasks.Task<string> Delete(string token, string id)
         {
