@@ -108,6 +108,8 @@ namespace proxy.Services {
             using (var client = new HttpClient()) {
                 List<Task> tasks = new List<Task>();
 
+                allTasks = allTasks.OrderBy(x => x.TimeCreated).ToList();
+
                 int fromYear = 0; int fromMonth = 0; int fromDay = 0;
                 int tillYear = 0; int tillMonth = 0; int tillDay = 0;
                 Int32.TryParse(from.Substring(0, 4), out fromYear);
@@ -121,6 +123,7 @@ namespace proxy.Services {
                 var tillDate = new DateTime(tillYear, tillMonth, tillDay, 23, 59, 59);
 
                 foreach (var t in allTasks) {
+                    if (DateTime.Compare(t.TimeCreated, tillDate) > 0) break;
                     if (DateTime.Compare(t.TimeCreated, fromDate) >= 0
                         && DateTime.Compare(t.TimeCreated, tillDate) <= 0) {
                         tasks.Add(t);
