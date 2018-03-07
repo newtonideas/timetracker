@@ -23,11 +23,12 @@ namespace proxy.Controllers
         }
 
         [Route("~/api/tasks")]
-        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token, string from, string till) {
+        public async System.Threading.Tasks.Task<IActionResult> GetAll([FromHeader] string token, string from, string till, string name, string users_id) {
             try {
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
-                if (!(string.IsNullOrEmpty(from) && string.IsNullOrEmpty(till))) return new ObjectResult(await this._taskRepository.GetAllByPeriod(token, from, till));
-                return new ObjectResult(await this._taskRepository.GetAll(token));
+                if (!(string.IsNullOrEmpty(from) && string.IsNullOrEmpty(till)))
+                    return new ObjectResult(await this._taskRepository.GetAllByPeriod(token, from, till, name, users_id));
+                return new ObjectResult(await this._taskRepository.GetAll(token, name, users_id));
             }
             catch (UnauthorizedAccessException e) {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
@@ -35,13 +36,14 @@ namespace proxy.Controllers
         }
 
         [HttpGet]
-        public async System.Threading.Tasks.Task<IActionResult> GetAllByProject([FromHeader] string token, [FromRoute] string project_id, string from, string till)
+        public async System.Threading.Tasks.Task<IActionResult> GetAllByProject([FromHeader] string token, [FromRoute] string project_id, string from, string till, string name, string users_id)
         {
             try
             {
                 if (token == null) return RedirectToRoute(new {controller = "Users", action="AccessToken"});
-                if (!(string.IsNullOrEmpty(from) && string.IsNullOrEmpty(till))) return new ObjectResult(await this._taskRepository.GetAllByProjectByPeriod(token, project_id, from, till));
-                return new ObjectResult (await this._taskRepository.GetAllByProject(token, project_id));
+                if (!(string.IsNullOrEmpty(from) && string.IsNullOrEmpty(till)))
+                    return new ObjectResult(await this._taskRepository.GetAllByProjectByPeriod(token, project_id, from, till, name, users_id));
+                return new ObjectResult (await this._taskRepository.GetAllByProject(token, project_id, name, users_id));
             }
             catch (UnauthorizedAccessException e)
             {

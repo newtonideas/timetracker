@@ -22,10 +22,14 @@ namespace proxy.Services {
             _authService = authService;
         }
 
-        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAll(string token) {
+        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAll(string token, string name = null, string users_id = null) {
             using (var client = new HttpClient()) {
 
-                List<Task> tasks = new List<Task>();
+                string[] userIds = null;
+                if (!(string.IsNullOrEmpty(users_id)))
+                    userIds = users_id.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+                var tasks = new List<Task>();
 
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
@@ -36,6 +40,22 @@ namespace proxy.Services {
 
                 //Serialization
                 foreach (var t in results) {
+
+                    bool has = true; //Filter flag
+                    if (!(string.IsNullOrEmpty(users_id))) { //If there's a filter by user IDs
+                        has = false;
+                        foreach (var uId in userIds) { //Checking for each sought user
+                            if (((string)t["followers_list"]).Contains(uId)) {
+                                has = true;
+                            }
+                            else {
+                                has = false;
+                            }
+                            if (!has) break; //If isn't followed by this user, stop the checking
+                        }
+                    }
+                    if (!has) continue; //If this task isn't followed by at least all of the sought users, skip
+
                     Task task = new Task();
                     task.Id = (string)t["id"];
                     task.ProjectId = (string)t["project_id"];
@@ -48,16 +68,22 @@ namespace proxy.Services {
                     tasks.Add(task);
                 }
 
+                if (!(string.IsNullOrEmpty(name)))
+                    return RefineByName(tasks, name);
                 return tasks;
             }
         }
 
-        public async System.Threading.Tasks.Task<IEnumerable<Task>> GetAllByProject(string token, string project_id)
+        public async System.Threading.Tasks.Task<IEnumerable<Task>> GetAllByProject(string token, string project_id,
+            string name = null, string users_id = null)
         {
             using (var client = new HttpClient())
             {
                 List<Task> tasks = new List<Task>();
                 var project_alias = (await (new ExtranetProjectsRepository(_authService, _config)).GetById(project_id, token)).Alias;
+                string[] userIds = null;
+                if (!(string.IsNullOrEmpty(users_id)))
+                    userIds = users_id.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
@@ -67,6 +93,22 @@ namespace proxy.Services {
 
                 //Serialization
                 foreach (var t in json) {
+
+                    bool has = true;
+                    if (!(string.IsNullOrEmpty(users_id))) {
+                        has = false;
+                        foreach (var uId in userIds) {
+                            if (((string)t["followers_list"]).Contains(uId)) {
+                                has = true;
+                            }
+                            else {
+                                has = false;
+                            }
+                            if (!has) break;
+                        }
+                    }
+                    if (!has) continue;
+
                     Task task = new Task();
                     task.Id = (string)t["id"];
                     task.ProjectId = (string)t["project_id"];
@@ -78,28 +120,24 @@ namespace proxy.Services {
                     tasks.Add(task);
                 }
 
-                /*
-                var allTasks = await GetAll(token);
-                foreach (Task t in allTasks) {
-                    if (t.ProjectId == project_id) {
-                        tasks.Add(t);
-                    }
-                }*/
-
+                if (!(string.IsNullOrEmpty(name)))
+                    return RefineByName(tasks, name);
                 return tasks;
             }
         }
 
-        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAllByPeriod(string token, string from, string till) {
+        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAllByPeriod(string token,
+            string from, string till, string name=null, string users_id = null) {
             using (var client = new HttpClient()) {
-                var allTasks = await GetAll(token);
+                var allTasks = await GetAll(token, name, users_id);
                 return RefineByPeriod(allTasks, from, till);
             }
         }
 
-        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAllByProjectByPeriod(string token, string project_id, string from, string till) {
+        public async System.Threading.Tasks.Task<IEnumerable<Models.Task>> GetAllByProjectByPeriod(string token, string project_id,
+            string from, string till, string name = null, string users_id = null) {
             using (var client = new HttpClient()) {
-                var allTasks = await GetAllByProject(token, project_id);
+                var allTasks = await GetAllByProject(token, project_id, name, users_id);
                 return RefineByPeriod(allTasks, from, till);
             }
         }
@@ -126,6 +164,20 @@ namespace proxy.Services {
                     if (DateTime.Compare(t.TimeCreated, tillDate) > 0) break;
                     if (DateTime.Compare(t.TimeCreated, fromDate) >= 0
                         && DateTime.Compare(t.TimeCreated, tillDate) <= 0) {
+                        tasks.Add(t);
+                    }
+                }
+
+                return tasks;
+            }
+        }
+
+        private IEnumerable<Models.Task> RefineByName(IEnumerable<Models.Task> allTasks, string name) {
+            using (var client = new HttpClient()) {
+                List<Task> tasks = new List<Task>();
+
+                foreach (var t in allTasks) {
+                    if (t.Name.Contains(name)) {
                         tasks.Add(t);
                     }
                 }
