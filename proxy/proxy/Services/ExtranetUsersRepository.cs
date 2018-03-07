@@ -27,17 +27,7 @@ namespace proxy.Services
             _authService = authService;
         }
 
-        public void Create(User user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Delete(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<User>> GetAll(string token)
+        public async Task<IEnumerable<User>> GetAll(string token, string name = null)
         {
             using (var client = new HttpClient())
             {
@@ -59,11 +49,13 @@ namespace proxy.Services
                     user.Name = (string)u["name"];
                     users.Add(user);
                 }
+                if (!(string.IsNullOrEmpty(name)))
+                    return RefineByName(users, name);
                 return users;
             }
         }
 
-        public async Task<IEnumerable<User>> GetAllByProject(string token, string project_id)
+        public async Task<IEnumerable<User>> GetAllByProject(string token, string project_id, string name=null)
         {
             using (var client = new HttpClient())
             {
@@ -90,6 +82,22 @@ namespace proxy.Services
                     //user.Phone = "";
                     users.Add(user);
                 }
+                if (!(string.IsNullOrEmpty(name)))
+                    return RefineByName(users, name);
+                return users;
+            }
+        }
+
+        private IEnumerable<Models.User> RefineByName(IEnumerable<Models.User> allUsers, string name) {
+            using (var client = new HttpClient()) {
+                List<User> users = new List<User>();
+
+                foreach (var u in allUsers) {
+                    if (u.Name.Contains(name)) {
+                        users.Add(u);
+                    }
+                }
+
                 return users;
             }
         }
@@ -107,8 +115,15 @@ namespace proxy.Services
             return null;
         }
 
-        public void Update(User user)
-        {
+        public void Create(User user) {
+            throw new NotImplementedException();
+        }
+
+        public void Update(User user) {
+            throw new NotImplementedException();
+        }
+
+        public void Delete(long id) {
             throw new NotImplementedException();
         }
     }
