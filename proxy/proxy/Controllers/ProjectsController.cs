@@ -24,11 +24,12 @@ namespace proxy.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromHeader] string token)
+        public async Task<IActionResult> GetAll([FromHeader] string token, string name)
         {
             try
             {
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
+                if (!(string.IsNullOrEmpty(name))) return new ObjectResult(await this._projectRepository.GetAll(token, name));
                 return new ObjectResult(await this._projectRepository.GetAll(token));
             }
             catch (UnauthorizedAccessException e)

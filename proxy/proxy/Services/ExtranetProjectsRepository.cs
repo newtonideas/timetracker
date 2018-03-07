@@ -24,13 +24,12 @@ namespace proxy.Services
             _authService = authService;
         }
 
-        public async Task<IEnumerable<Project>> GetAll(string token)
+        public async Task<IEnumerable<Project>> GetAll(string token, string name = null)
         {
             using (var client = new HttpClient())
             {
 
-
-                List<Project> projects = new List<Project>();
+                var projects = new List<Project>();
 
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
@@ -48,6 +47,17 @@ namespace proxy.Services
                     project.TimeCreated = (DateTime)t["creation_date"];
                     project.Alias = (string)t["project_alias"];
                     projects.Add(project);
+                }
+                if (!(string.IsNullOrEmpty(name))) {
+                    var filtered = new List<Project>();
+
+                    foreach (var p in projects) {
+                        if (p.Name.Contains(name) || p.Alias.Contains(name)) {
+                            filtered.Add(p);
+                        }
+                    }
+
+                    projects = filtered;
                 }
 
                 return projects;
