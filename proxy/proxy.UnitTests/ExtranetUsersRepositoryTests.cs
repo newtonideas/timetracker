@@ -2,7 +2,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using proxy.AuthServices;
-using proxy.Data;
 using proxy.Models;
 using proxy.Services;
 using System;

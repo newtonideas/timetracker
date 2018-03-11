@@ -21,5 +21,6 @@ namespace proxy.Models
         public DateTime Finish_on { get; set; }
         [Required]
         public string Title { get; set; }
+        public double Effort { get; set; }
     }
 }

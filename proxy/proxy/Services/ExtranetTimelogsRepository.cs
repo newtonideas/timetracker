@@ -157,7 +157,11 @@ namespace proxy.Services {
                             timelog.Finish_on = (DateTime)t["finish_on"];
                         }
                         catch (ArgumentException) { }
-                        timelogs.Add(timelog);
+                        timelog.Effort = (timelog.Finish_on - timelog.Start_on).TotalHours;
+                        if(timelog.Task_id != null)
+                        {
+                            timelogs.Add(timelog);
+                        }
                     }
                 }
                     
