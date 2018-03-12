@@ -26,6 +26,7 @@ namespace proxy.Services {
 
         public async Task<Timelog> Create(string token, Timelog timelog, string project_id)
         {
+
             Timelog newTimelog = timelog;
             if (newTimelog.Project_id != project_id)
             {
@@ -67,7 +68,14 @@ namespace proxy.Services {
 
                 // making request
                 var response = await client.PostAsync(URI, stringContent);
-
+                if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException("Unauthorized");
+                }
+                if(response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                {
+                    throw new Exception("Invalid timelog input data");
+                }
                 //Getting id of created Timelog
                 var stringResult = await response.Content.ReadAsStringAsync();
                 JArray jsonArray = JArray.Parse(stringResult);
