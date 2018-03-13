@@ -309,12 +309,11 @@ namespace proxy.Services {
             return editedTask;
         }
 
-        public async System.Threading.Tasks.Task<string> Delete(string token, string id)
+        public async System.Threading.Tasks.Task<bool> Delete(string token, string id)
         {
             var DOMAIN = _config["ExtranetDomain"];
             var URI = DOMAIN + "/api/ApiAlpha.ashx/tickets/multi?check_conflict=1&layout_media=ui-form";
 
-            var stringResult = "";
 
             HttpClientHandler handler = new HttpClientHandler();
             using (var client = new HttpClient(handler))
@@ -343,9 +342,14 @@ namespace proxy.Services {
                 // making request
                 var response = await client.PostAsync(URI, stringContent);
 
-                stringResult = await response.Content.ReadAsStringAsync();
+                var stringResult = await response.Content.ReadAsStringAsync();
+                JArray jsonArray = JArray.Parse(stringResult);
+                var responseJson = JObject.Parse(jsonArray[0].ToString());
+                var deletedJson = responseJson["deleted"];
+                var deletedString = deletedJson.ToString();
+
+                return deletedString.Equals("True");
             }
-            return stringResult;
         }
 
     }

@@ -15,6 +15,8 @@ namespace proxy.UnitTests
         private Mock<IAuthService> mockAuthService;
         private Mock<IConfiguration> mockConfiguration;
         private Dictionary<string, string> authCookies;
+        private ExtranetTimelogsRepository extranetTimelogsRepository;
+
 
         [TestInitialize]
         public void SetupMocks()
@@ -22,6 +24,8 @@ namespace proxy.UnitTests
             //stubs for DI objects
             mockAuthService = new Mock<IAuthService>();
             mockConfiguration = new Mock<IConfiguration>();
+
+            extranetTimelogsRepository = new ExtranetTimelogsRepository(mockAuthService.Object, mockConfiguration.Object);
 
             authCookies = new Dictionary<string, string>();
             //Input valid auth cookie here
@@ -38,7 +42,6 @@ namespace proxy.UnitTests
         public void GetAll_ValidTokenAndProjectId_ReturnsAllTimelogs()
         {
             //Arrange
-            ExtranetTimelogsRepository extranetTimelogsRepository = new ExtranetTimelogsRepository(mockAuthService.Object, mockConfiguration.Object);
             //input project id here
             string projectId = "295070f3-8246-492a-bf1f-a2f39b319578";
 
@@ -69,7 +72,6 @@ namespace proxy.UnitTests
         public void GetAll_ValidTokenAndInvalidProjectId_ReturnsEmptyList()
         {
             //Arrange
-            ExtranetTimelogsRepository extranetTimelogsRepository = new ExtranetTimelogsRepository(mockAuthService.Object, mockConfiguration.Object);
             //input invalid project id here
             string projectId = "invalid project id";
 
@@ -85,8 +87,6 @@ namespace proxy.UnitTests
         public void GetById_ValidIdAndTokenAndProjectId_ReturnsTimelog()
         {
             //Arrange
-            mockAuthService.Setup(m => m.getAuthCredentials(It.IsAny<string>())).Returns(System.Threading.Tasks.Task.FromResult(authCookies));
-            ExtranetTimelogsRepository extranetTimelogsRepository = new ExtranetTimelogsRepository(mockAuthService.Object, mockConfiguration.Object);
             //input project id here
             string projectId = "295070f3-8246-492a-bf1f-a2f39b319578";
             //input timelog id here
@@ -108,7 +108,6 @@ namespace proxy.UnitTests
         public void GetById_InvalidIdAndValidTokenAndProjectId_ReturnsNull()
         {
             //Arrange
-            ExtranetTimelogsRepository extranetTimelogsRepository = new ExtranetTimelogsRepository(mockAuthService.Object, mockConfiguration.Object);
             //input project id here
             string projectId = "295070f3-8246-492a-bf1f-a2f39b319578";
             //input invalid timelog id here
@@ -125,8 +124,6 @@ namespace proxy.UnitTests
         public void GetById_InvalidProjectIdAndValidIdAndToken_ReturnsNull()
         {
             //Arrange
-            
-            ExtranetTimelogsRepository extranetTimelogsRepository = new ExtranetTimelogsRepository(mockAuthService.Object, mockConfiguration.Object);
             //input invalid project id here
             string projectId = "invalid project id";
             //input timelog id here
@@ -143,31 +140,27 @@ namespace proxy.UnitTests
         public void Create_ValidTokenTimelogAndProjectId_ReturnsCreatedTimelog()
         {
             //Arrange
-            ExtranetTimelogsRepository extranetTimelogsRepository = new ExtranetTimelogsRepository(mockAuthService.Object, mockConfiguration.Object);
             Timelog newTimelog = new Timelog();
             //input timelog data here
             newTimelog.Project_id = "87b47424-1c46-473b-81c1-a1b52123b7ce";
             newTimelog.Task_id = "49d2dc7f-e9df-4b10-ac82-5c8cc0220ee1";
             newTimelog.User_id = "e981a503-1536-4a48-920d-6c464f596cbc";
-            newTimelog.Title = "unit test";
-            DateTime start = new DateTime(2018,3,12,7,0,0,0);
-            DateTime finish = new DateTime(2018,3,12,8,0,0,0);
+            newTimelog.Title = "create";
+            DateTime start = new DateTime(2018,3,13,11,0,0,0);
+            DateTime finish = new DateTime(2018,3,13,12,0,0,0);
             newTimelog.Start_on = start;
             newTimelog.Finish_on = finish;
 
             //Act
             Timelog res = extranetTimelogsRepository.Create("", newTimelog, newTimelog.Project_id).Result;
-
             //Assert
-            Assert.IsNotNull(newTimelog.Id);
+            Assert.IsNotNull(res.Id);
         }
 
-        [ExpectedException(typeof(AggregateException))]
         [TestMethod]
-        public void Create_ValidTokenAndTimelogInvalidProjectId_ReturnsCreatedTimelog()
+        public void Create_ValidTokenAndTimelogInvalidProjectId_ThrowsException()
         {
             //Arrange
-            ExtranetTimelogsRepository extranetTimelogsRepository = new ExtranetTimelogsRepository(mockAuthService.Object, mockConfiguration.Object);
             //input timelog data here
             Timelog newTimelog = new Timelog();
             //input invalid project id
@@ -181,8 +174,185 @@ namespace proxy.UnitTests
             newTimelog.Finish_on = finish;
 
             //Act
-            Timelog res = extranetTimelogsRepository.Create("", newTimelog, newTimelog.Project_id).Result;
+            try
+            {
+                Timelog res = extranetTimelogsRepository.Create("", newTimelog, newTimelog.Project_id).Result;
+            }
+            catch (AggregateException ae)
+            {
+                //Assert
+                Assert.AreEqual(ae.InnerException.Message, "Invalid timelog input data");
+            }
+        }
 
+        [TestMethod]
+        public void Create_ValidTokenAndProjectIdInvalidTimelogData_ThrowsException()
+        {
+            //Arrange
+            //input some invalid timelog data here
+            Timelog newTimelog = new Timelog();
+            newTimelog.Project_id = "87b47424-1c46-473b-81c1-a1b52123b7ce";
+            newTimelog.Task_id = "invalid task id";
+            newTimelog.User_id = "e981a503-1536-4a48-920d-6c464f596cbc";
+            newTimelog.Title = "unit test";
+            DateTime start = new DateTime(2018, 03, 13, 07, 00, 00, 000);
+            DateTime finish = new DateTime(2018, 03, 13, 08, 00, 00, 000);
+            newTimelog.Start_on = start;
+            newTimelog.Finish_on = finish;
+
+            //Act
+            try
+            {
+                Timelog res = extranetTimelogsRepository.Create("", newTimelog, newTimelog.Project_id).Result;
+            }
+            catch (AggregateException ae)
+            {
+                //Assert
+                Assert.AreEqual(ae.InnerException.Message, "Invalid timelog input data");
+            }
+        }
+
+        [TestMethod]
+        public void Update_ValidTokenAndIdAndTimelogAndProjectId_ReturnsEditedTimelog()
+        {
+            //Arrange
+            Timelog editedTimelog = new Timelog();
+            //input timelog data to update here
+            editedTimelog.Id = "f65f8c5f-9831-41aa-929d-35ae8ba668a6";
+            //editedTimelog.Id = "96628a0e-594c-4ffd-af44-090318a6d03d";
+            editedTimelog.Project_id = "87b47424-1c46-473b-81c1-a1b52123b7ce";
+            editedTimelog.Task_id = "49d2dc7f-e9df-4b10-ac82-5c8cc0220ee1";
+            editedTimelog.User_id = "e981a503-1536-4a48-920d-6c464f596cbc";
+            editedTimelog.Title = "unit test update";
+            DateTime start = new DateTime(2018, 3, 13, 7, 0, 0, 0);
+            DateTime finish = new DateTime(2018, 3, 13, 10, 0, 0, 0);
+            editedTimelog.Start_on = start;
+            editedTimelog.Finish_on = finish;
+
+            //Act
+            Timelog res = extranetTimelogsRepository.Update("", editedTimelog.Id, editedTimelog, editedTimelog.Project_id).Result;
+
+            //Assert
+            Assert.IsNotNull(res.Id);
+        }
+
+        [TestMethod]
+        public void Update_ValidTokenAndTimelogAndProjectIdInvalidId_ThrowsException()
+        {
+            //Arrange
+            Timelog editedTimelog = new Timelog(); 
+            //input invalid id here
+            editedTimelog.Id = "invalid id";
+            //input timelog data to update here
+            editedTimelog.Project_id = "87b47424-1c46-473b-81c1-a1b52123b7ce";
+            editedTimelog.Task_id = "49d2dc7f-e9df-4b10-ac82-5c8cc0220ee1";
+            editedTimelog.User_id = "e981a503-1536-4a48-920d-6c464f596cbc";
+            editedTimelog.Title = "unit test update";
+            DateTime start = new DateTime(2018, 3, 13, 7, 0, 0, 0);
+            DateTime finish = new DateTime(2018, 3, 13, 10, 0, 0, 0);
+            editedTimelog.Start_on = start;
+            editedTimelog.Finish_on = finish;
+
+            //Act
+            try
+            {
+                Timelog res = extranetTimelogsRepository.Update("", editedTimelog.Id, editedTimelog, editedTimelog.Project_id).Result;
+            }
+            catch (AggregateException ae)
+            {
+                //Assert
+                Assert.AreEqual(ae.InnerException.Message, "Invalid timelog input data");
+            }
+        }
+
+        [TestMethod]
+        public void Update_ValidTokenAndTimelogAndIdInvalidProjectId_ThrowsException()
+        {
+            //Arrange
+            Timelog editedTimelog = new Timelog();
+            //input invalid project id here
+            editedTimelog.Project_id = "invalid";
+            //input timelog data to update here
+            editedTimelog.Id = "6833cd15-c199-4a00-add3-f149a824ff9c";            
+            editedTimelog.Task_id = "49d2dc7f-e9df-4b10-ac82-5c8cc0220ee1";
+            editedTimelog.User_id = "e981a503-1536-4a48-920d-6c464f596cbc";
+            editedTimelog.Title = "unit test update";
+            DateTime start = new DateTime(2018, 3, 13, 7, 0, 0, 0);
+            DateTime finish = new DateTime(2018, 3, 13, 10, 0, 0, 0);
+            editedTimelog.Start_on = start;
+            editedTimelog.Finish_on = finish;
+
+            //Act
+            try
+            {
+                Timelog res = extranetTimelogsRepository.Update("", editedTimelog.Id, editedTimelog, editedTimelog.Project_id).Result;
+            }
+            catch (AggregateException ae)
+            {
+                //Assert
+                Assert.AreEqual(ae.InnerException.Message, "Invalid timelog input data");
+            }
+        }
+
+        [TestMethod]
+        public void Update_ValidTokenAndIdAndProjectIdInvalidTimelogData_ThrowsException()
+        {
+            //Arrange
+            Timelog editedTimelog = new Timelog();
+            //input some invalid timelog data here
+            editedTimelog.Project_id = "87b47424-1c46-473b-81c1-a1b52123b7ce";
+            editedTimelog.Id = "6833cd15-c199-4a00-add3-f149a824ff9c";
+            editedTimelog.Task_id = "invalid";
+            editedTimelog.User_id = "e981a503-1536-4a48-920d-6c464f596cbc";
+            editedTimelog.Title = "unit test update";
+            DateTime start = new DateTime(2018, 3, 13, 7, 0, 0, 0);
+            DateTime finish = new DateTime(2018, 3, 13, 10, 0, 0, 0);
+            editedTimelog.Start_on = start;
+            editedTimelog.Finish_on = finish;
+
+            //Act
+            try
+            {
+                Timelog res = extranetTimelogsRepository.Update("", editedTimelog.Id, editedTimelog, editedTimelog.Project_id).Result;
+            }
+            catch (AggregateException ae)
+            {
+                //Assert
+                Assert.AreEqual(ae.InnerException.Message, "Invalid timelog input data");
+            }
+        }
+
+        [TestMethod]
+        public void Delete_ValidTokenAndId_ReturnsTrue()
+        {
+            //Arrange
+            //input timelog id to delete
+            string id = "f65f8c5f-9831-41aa-929d-35ae8ba668a6";
+
+            //Act
+            bool res = extranetTimelogsRepository.Delete("", id).Result;
+
+            //Assert
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void Delete_ValidTokenInvalidId_ThrowsException()
+        {
+            //Arrange
+            //input invalid id here
+            string id = "invalid";
+
+            //Act
+            try
+            {
+                bool res = extranetTimelogsRepository.Delete("", id).Result;
+            }
+            catch (AggregateException ae)
+            {
+                //Assert
+                Assert.AreEqual(ae.InnerException.Message, "Invalid id");
+            }
         }
     }
 }

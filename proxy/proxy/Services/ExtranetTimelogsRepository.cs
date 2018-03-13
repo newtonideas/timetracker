@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Text;
+using System.Threading;
+using System.Globalization;
 
 namespace proxy.Services {
     public class ExtranetTimelogsRepository : ITimelogRepository
@@ -60,6 +62,7 @@ namespace proxy.Services {
                 inputs["parent_id"] = newTimelog.Task_id;
                 inputs["process_template_id"] = "default-app-timelog";
                 inputs["title"] = newTimelog.Title;
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
                 inputs["start_on"] = newTimelog.Start_on.ToString();
                 inputs["finish_on"] = newTimelog.Finish_on.ToString();
 
@@ -70,7 +73,7 @@ namespace proxy.Services {
                 var response = await client.PostAsync(URI, stringContent);
                 if(response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
-                    throw new UnauthorizedAccessException("Unauthorized");
+                    throw new UnauthorizedAccessException("Token expired");
                 }
                 if(response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
                 {
@@ -88,12 +91,10 @@ namespace proxy.Services {
             return newTimelog;
          }
 
-        public async Task<string> Delete(string token, string id)
+        public async Task<bool> Delete(string token, string id)
         {
             var DOMAIN = _config["ExtranetDomain"];
             var URI = DOMAIN + "api/ApiAlpha.ashx/tickets/multi?check_conflict=1&layout_media=ui-form";
-
-            var stringResult = "";
 
             HttpClientHandler handler = new HttpClientHandler();
             using (var client = new HttpClient(handler))
@@ -114,16 +115,31 @@ namespace proxy.Services {
                 Dictionary<string, string> inputs = new Dictionary<string, string>();
                 inputs["process_template_id"] = "default-app-timelog";
                 inputs["id"] = id;
+                inputs["transition"] = "delete";
 
                 var requestJson = "[" + JsonConvert.SerializeObject(inputs) + "]";
                 var stringContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
                 // making request
                 var response = await client.PostAsync(URI, stringContent);
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException("Token expired");
+                }
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Invalid id");
+                }
 
-                stringResult = await response.Content.ReadAsStringAsync();
+                var stringResult = await response.Content.ReadAsStringAsync();
+                JArray jsonArray = JArray.Parse(stringResult);
+                var responseJson = JObject.Parse(jsonArray[0].ToString());
+                var deletedJson = responseJson["deleted"];
+                var deletedString = deletedJson.ToString();
+                
+                return deletedString.Equals("True");
+                
             }
-            return stringResult;
         }
 
         public async Task<IEnumerable<Timelog>> GetAll(string token, string project_id) {
@@ -229,6 +245,7 @@ namespace proxy.Services {
                 inputs["parent_id"] = editedTimelog.Task_id;
                 inputs["process_template_id"] = "default-app-timelog";
                 inputs["title"] = editedTimelog.Title;
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
                 inputs["start_on"] = editedTimelog.Start_on.ToString();
                 inputs["finish_on"] = editedTimelog.Finish_on.ToString();
                 inputs["transition"] = "edit";
@@ -238,6 +255,14 @@ namespace proxy.Services {
 
                 // making request
                 var response = await client.PostAsync(URI, stringContent);
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException("Token expired");
+                }
+                if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                {
+                    throw new Exception("Invalid timelog input data");
+                }
             }
 
             return editedTimelog;
