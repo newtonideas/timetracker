@@ -30,7 +30,7 @@ namespace proxy.Controllers
                     return new ObjectResult(await this._taskRepository.GetAllByPeriod(token, from, till, name, users_id));
                 return new ObjectResult(await this._taskRepository.GetAll(token, name, users_id));
             }
-            catch (UnauthorizedAccessException e) {
+            catch (UnauthorizedAccessException) {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
         }
@@ -45,7 +45,7 @@ namespace proxy.Controllers
                     return new ObjectResult(await this._taskRepository.GetAllByProjectByPeriod(token, project_id, from, till, name, users_id));
                 return new ObjectResult (await this._taskRepository.GetAllByProject(token, project_id, name, users_id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
@@ -84,7 +84,7 @@ namespace proxy.Controllers
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
                 return new ObjectResult(await this._taskRepository.Create(token, task, project_id, created_by_id, responsible_user_id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
@@ -113,7 +113,7 @@ namespace proxy.Controllers
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
                 return new ObjectResult(await this._taskRepository.Update(token, id, task, project_id, created_by_id, responsible_user_id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
@@ -128,7 +128,7 @@ namespace proxy.Controllers
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
                 return new ObjectResult(await this._taskRepository.Delete(token, id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }

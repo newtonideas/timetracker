@@ -94,11 +94,7 @@ namespace proxy.UnitTests
 
             //Act
             Timelog timelog = extranetTimelogsRepository.GetById(id, "", projectId).Result;
-            bool check = false;
-            if(timelog != null && timelog.Id.Equals(id))
-            {
-                check = true;
-            }
+            bool check = timelog != null && timelog.Id.Equals(id);
 
             //Assert
             Assert.IsTrue(check);
@@ -153,6 +149,7 @@ namespace proxy.UnitTests
 
             //Act
             Timelog res = extranetTimelogsRepository.Create("", newTimelog, newTimelog.Project_id).Result;
+            
             //Assert
             Assert.IsNotNull(res.Id);
         }

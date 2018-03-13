@@ -150,6 +150,11 @@ namespace proxy.Services {
 
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
+                //get current user
+                var responseForCurrentUser = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/projects/!BLA", authCookies, _config).Result;
+                var jsonForCurrentUser = JObject.Parse(responseForCurrentUser);
+                var currentUserId = jsonForCurrentUser["current_user_id"].ToString();
+
                 //Retrieving a JSON-Object
                 var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/w/TIMELOG/tickets/list?&listOfFields=ALL&withTechnicalData=true", authCookies, _config).Result;
 
@@ -160,14 +165,15 @@ namespace proxy.Services {
                 foreach (JObject t in results) {
 
                     var projectId = (string)t["project_id"];
+                    var userId = (string)t["accountable_account_id"];
 
-                    if (projectId == project_id)
+                    if (projectId.Equals(project_id) && userId.Equals(currentUserId))
                     {
 
                         Timelog timelog = new Timelog();
                         timelog.Id = (string)t["id"];
                         timelog.Title = (string)t["title"];
-                        timelog.User_id = (string)t["accountable_account_id"];
+                        timelog.User_id = userId;
                         timelog.Project_id = projectId;
                         timelog.Task_id = (string)t["parent_id"];
 

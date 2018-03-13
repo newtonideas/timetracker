@@ -32,7 +32,7 @@ namespace proxy.Controllers
                 if (!(string.IsNullOrEmpty(name))) return new ObjectResult(await this._projectRepository.GetAll(token, name));
                 return new ObjectResult(await this._projectRepository.GetAll(token));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }

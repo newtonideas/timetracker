@@ -15,24 +15,25 @@ namespace proxy.UnitTests
         private Mock<ITokenStorage> mockTokenStorage;
         private Mock<IConfiguration> mockConfiguration;
 
+        private ExtranetAuthService extranetAuthService;
+
         [TestInitialize]
         public void SetupMocks()
         {
             //stubs for DI objects
             mockTokenStorage = new Mock<ITokenStorage>();
             mockConfiguration = new Mock<IConfiguration>();
-        } 
+            extranetAuthService = new ExtranetAuthService(mockConfiguration.Object, mockTokenStorage.Object);
+
+        }
 
         [TestMethod]
         public void GetAuthCredentials_ValidToken_ReturnsAuthCredentials()
         {
             //Arrange
             AccessToken accessToken = new AccessToken() { Auth = "auth", SessionId = "sessionId", Token = "token" };
-
             //stub for SingleOrDefaultAsync() method that should return AccessToken from the database
             mockTokenStorage.Setup(m => m.SingleOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult((object)accessToken));
-
-            ExtranetAuthService extranetAuthService = new ExtranetAuthService(mockConfiguration.Object, mockTokenStorage.Object);
 
             //Act
             Dictionary<string, string> res = extranetAuthService.getAuthCredentials("").Result;
@@ -41,19 +42,24 @@ namespace proxy.UnitTests
             CollectionAssert.AllItemsAreNotNull(res.Values);
         }
 
-        [ExpectedException(typeof(AggregateException))]
         [TestMethod]
         public void GetAuthCredentials_InvalidToken_ThrowsException()
         {
-
             //Arrange
             //stub for SingleOrDefaultAsync() method that should return AccessToken from the database
             mockTokenStorage.Setup(m => m.SingleOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult((object)null));
-            ExtranetAuthService extranetAuthService = new ExtranetAuthService(mockConfiguration.Object, mockTokenStorage.Object);
-            
+
+
             //Act
-            //Exception is expected here
-            var res = extranetAuthService.getAuthCredentials("").Result;
+            try
+            {
+                var res = extranetAuthService.getAuthCredentials("").Result;
+            }
+            catch (AggregateException ae)
+            {
+                //Assert
+                Assert.AreEqual(ae.InnerException.Message, "Unauthorized");
+            }
 
         }
 
@@ -76,7 +82,6 @@ namespace proxy.UnitTests
             Assert.IsNotNull(token);
         }
 
-        [ExpectedException(typeof(AggregateException))]
         [TestMethod]
         public void CreateAuthCredentials_InvalidLoginAndPassword_ThrowsException()
         {
@@ -84,12 +89,19 @@ namespace proxy.UnitTests
             //stub for SingleOrDefaultAsync() method that should return AccessToken from the database
             mockConfiguration.Setup(m => m["ExtranetDomain"]).Returns("https://extranet.newtonideas.com/");
             ExtranetAuthService extranetAuthService = new ExtranetAuthService(mockConfiguration.Object, mockTokenStorage.Object);
-            string validLogin = "Invalid login";
-            string validPassword = "Invalid password";
+            string invalidLogin = "Invalid login";
+            string invalidPassword = "Invalid password";
 
             //Act
-            //Exception is expected here
-            var token = extranetAuthService.createAuthCredentials(validLogin, validPassword).Result;
+            try
+            {
+                var token = extranetAuthService.createAuthCredentials(invalidLogin, invalidPassword).Result;
+            }
+            catch (AggregateException ae)
+            {
+                //Assert
+                Assert.AreEqual(ae.InnerException.Message, "Invalid login/password");
+            }
         }
     }
 }

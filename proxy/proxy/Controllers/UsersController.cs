@@ -47,7 +47,7 @@ namespace proxy.Controllers
                 if (!(string.IsNullOrEmpty(name))) return new ObjectResult(await this._userRepository.GetAll(token, name));
                 return new ObjectResult(await this._userRepository.GetAll(token));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
@@ -64,7 +64,7 @@ namespace proxy.Controllers
                 if (!(string.IsNullOrEmpty(name))) return new ObjectResult(await this._userRepository.GetAllByProject(token, project_id, name));
                 return new ObjectResult(await this._userRepository.GetAllByProject(token, project_id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
@@ -79,7 +79,7 @@ namespace proxy.Controllers
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
                 return new ObjectResult(await this._userRepository.GetById(id, token));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }

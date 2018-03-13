@@ -31,7 +31,7 @@ namespace proxy.Controllers
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
                 return new ObjectResult (await this._timelogRepository.GetAll(token, project_id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
@@ -56,7 +56,7 @@ namespace proxy.Controllers
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
                 return new ObjectResult(await this._timelogRepository.Create(token, timelog, project_id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
@@ -90,7 +90,7 @@ namespace proxy.Controllers
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
                 return new ObjectResult(await this._timelogRepository.Update(token, id, timelog, project_id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
@@ -105,7 +105,7 @@ namespace proxy.Controllers
                 if (token == null) return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
                 return new ObjectResult(await this._timelogRepository.Delete(token, id));
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 return RedirectToRoute(new { controller = "Users", action = "AccessToken" });
             }
