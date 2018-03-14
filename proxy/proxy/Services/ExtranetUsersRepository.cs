@@ -20,9 +20,11 @@ namespace proxy.Services
 
         private readonly IAuthService _authService;
         private readonly IConfiguration _config;
+        private readonly IProjectRepository _projectRepository;
 
-        public ExtranetUsersRepository(IAuthService authService, IConfiguration config)
+        public ExtranetUsersRepository(IAuthService authService, IConfiguration config, IProjectRepository projectRepository)
         {
+            _projectRepository = projectRepository;
             _config = config;
             _authService = authService;
         }
@@ -61,7 +63,7 @@ namespace proxy.Services
             {
 
                 List<User> users = new List<User>();
-                var project_alias = (await (new ExtranetProjectsRepository(_authService, _config)).GetById(project_id, token)).Alias;
+                var project_alias = (await _projectRepository.GetById(project_id, token)).Alias;
 
                 Dictionary<string, string> authCookies = await _authService.getAuthCredentials(token);
 
@@ -69,17 +71,12 @@ namespace proxy.Services
                 var response = RequestGenerator.generateRequest("/api/ApiAlpha.ashx/projects/" + project_alias + "!BLA", authCookies, _config).Result;
                 var json = JObject.Parse(response);
                 var workspaceUsers = json["workspace_users"].Children().ToList();
-                var company = (string)json["workspace_details"]["company_title"];
 
                 //Serialization
                 foreach (var u in workspaceUsers) {
                     var user = new User();
                     user.Id = (string)u["id"];
                     user.Name = (string)u["name"];
-                    //user.Email = "";// (string)u["email"];
-                    //user.Password = "";
-                    user.Company = company;
-                    //user.Phone = "";
                     users.Add(user);
                 }
                 if (!(string.IsNullOrEmpty(name)))

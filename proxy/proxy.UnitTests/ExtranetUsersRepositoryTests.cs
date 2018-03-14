@@ -13,16 +13,18 @@ namespace proxy.UnitTests
     [TestClass]
     public class ExtranetUsersRepositoryTests
     {
-        private Mock<IAuthService> mockAuthService;
-        private Mock<IConfiguration> mockConfiguration;
-        private ExtranetUsersRepository extranetUsersRepository;
+        private Mock<IAuthService> _mockAuthService;
+        private Mock<IConfiguration> _mockConfiguration;
+        private ExtranetUsersRepository _extranetUsersRepository;
+        private Mock<IProjectRepository> _mockProjectRepository;
 
         [TestInitialize]
         public void SetupMocks()
         {
             //stubs for DI objects
-            mockAuthService = new Mock<IAuthService>();
-            mockConfiguration = new Mock<IConfiguration>();
+            _mockAuthService = new Mock<IAuthService>();
+            _mockConfiguration = new Mock<IConfiguration>();
+            _mockProjectRepository = new Mock<IProjectRepository>();
 
             Dictionary<string, string> authCookies = new Dictionary<string, string>();
             //Input valid auth cookie here
@@ -31,12 +33,12 @@ namespace proxy.UnitTests
             authCookies.Add("ASP.NET_SessionId", "zcb1fcvtd1rv01b2lpeh3ny5");
 
             //stub for IConfiguration object that should return extranet domain
-            mockConfiguration.Setup(m => m["ExtranetDomain"]).Returns("https://extranet.newtonideas.com/");
+            _mockConfiguration.Setup(m => m["ExtranetDomain"]).Returns("https://extranet.newtonideas.com/");
 
             //stub for IAuthService getAuthCredentials method that should return valid auth cookies
-            mockAuthService.Setup(m => m.getAuthCredentials(It.IsAny<string>())).Returns(System.Threading.Tasks.Task.FromResult(authCookies));
+            _mockAuthService.Setup(m => m.getAuthCredentials(It.IsAny<string>())).Returns(System.Threading.Tasks.Task.FromResult(authCookies));
 
-            extranetUsersRepository = new ExtranetUsersRepository(mockAuthService.Object, mockConfiguration.Object);
+            _extranetUsersRepository = new ExtranetUsersRepository(_mockAuthService.Object, _mockConfiguration.Object, _mockProjectRepository.Object);
 
         }
 
@@ -46,7 +48,7 @@ namespace proxy.UnitTests
             //Arrange
             
             //Act
-            var users = (List<User>)extranetUsersRepository.GetAll("").Result;
+            var users = (List<User>)_extranetUsersRepository.GetAll("").Result;
             var checkList = new List<string>();
             foreach(var u in users)
             {
@@ -67,7 +69,7 @@ namespace proxy.UnitTests
             string name = "Andrii";
 
             //Act
-            var users = (List<User>)extranetUsersRepository.GetAll("", name).Result;
+            var users = (List<User>)_extranetUsersRepository.GetAll("", name).Result;
 
             bool check = true;
             foreach(var u in users)
@@ -81,6 +83,29 @@ namespace proxy.UnitTests
         }
 
         [TestMethod]
+        public void GetAllByProject_ValidTokenAndProjectIdWithoutFilters_ReturnsAllUsersFromProject()
+        {
+            //Arrange
+            Project project = new Project();
+            //input project alias here
+            project.Alias = "TTI";
+            //stub for IProjectService GetById method which returns project
+            _mockProjectRepository.Setup(m => m.GetById(It.IsAny<string>(), It.IsAny<string>())).Returns(System.Threading.Tasks.Task.FromResult(project));
+
+            //Act
+            List<User> users = (List<User>)_extranetUsersRepository.GetAllByProject("", "").Result;
+            List<string> check = new List<string>();
+            foreach(var u in users)
+            {
+                check.Add(u.Id);
+                check.Add(u.Name);
+            }
+
+            //Assert
+            CollectionAssert.AllItemsAreNotNull(check);
+        }
+
+        [TestMethod]
         public void GetById_ValidTokenAndId_ReturnsUser()
         {
             //Arrange
@@ -88,7 +113,7 @@ namespace proxy.UnitTests
             string id = "e981a503-1536-4a48-920d-6c464f596cbc";
 
             //Act
-            var user = extranetUsersRepository.GetById(id, "").Result;
+            var user = _extranetUsersRepository.GetById(id, "").Result;
             bool check = user != null && user.Id.Equals(id);
 
             //Assert
@@ -103,7 +128,7 @@ namespace proxy.UnitTests
             string id = "invalid";
 
             //Act
-            var user = extranetUsersRepository.GetById(id, "").Result;
+            var user = _extranetUsersRepository.GetById(id, "").Result;
 
             //Assert
             Assert.IsNull(user);
