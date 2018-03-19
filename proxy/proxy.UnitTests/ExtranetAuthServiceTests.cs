@@ -17,6 +17,8 @@ namespace proxy.UnitTests
 
         private ExtranetAuthService extranetAuthService;
 
+        private Dictionary<string, string> _testData;
+
         [TestInitialize]
         public void SetupMocks()
         {
@@ -24,7 +26,9 @@ namespace proxy.UnitTests
             mockTokenStorage = new Mock<ITokenStorage>();
             mockConfiguration = new Mock<IConfiguration>();
             extranetAuthService = new ExtranetAuthService(mockConfiguration.Object, mockTokenStorage.Object);
-
+            
+            TestHelper testHelper = new TestHelper();
+            _testData = testHelper.GetTestData();
         }
 
         [TestMethod]
@@ -54,6 +58,7 @@ namespace proxy.UnitTests
             try
             {
                 var res = extranetAuthService.getAuthCredentials("").Result;
+                Assert.IsTrue(false);
             }
             catch (AggregateException ae)
             {
@@ -70,10 +75,8 @@ namespace proxy.UnitTests
             //stub for Iconfiguration object that should return extranet domain
             mockConfiguration.Setup(m => m["ExtranetDomain"]).Returns("https://extranet.newtonideas.com/");
             ExtranetAuthService extranetAuthService = new ExtranetAuthService(mockConfiguration.Object, mockTokenStorage.Object);
-            //input your login here
-            string validLogin = "login";
-            //input your password here
-            string validPassword = "password";
+            string validLogin = _testData["login"];
+            string validPassword = _testData["password"];
 
             //Act
             var token = extranetAuthService.createAuthCredentials(validLogin, validPassword).Result;
@@ -96,6 +99,7 @@ namespace proxy.UnitTests
             try
             {
                 var token = extranetAuthService.createAuthCredentials(invalidLogin, invalidPassword).Result;
+                Assert.IsTrue(false);
             }
             catch (AggregateException ae)
             {

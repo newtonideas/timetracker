@@ -261,6 +261,10 @@ namespace proxy.Services {
 
                 // making request
                 var response = await client.PostAsync(URI, stringContent);
+                if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new Exception("Timelog not found");
+                }
                 if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
                     throw new UnauthorizedAccessException("Token expired");
