@@ -1,7 +1,6 @@
 import React from 'react'
-import styles from '../resources/styles'
 
-class MainPage extends React.Component {
+class HomePage extends React.Component {
     render() {
         return (
             <div>
@@ -11,4 +10,4 @@ class MainPage extends React.Component {
     }
 }
 
-export default MainPage
+export default HomePage

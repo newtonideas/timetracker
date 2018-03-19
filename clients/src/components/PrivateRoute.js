@@ -9,4 +9,3 @@ export const PrivateRoute = ({ component: Component, ...rest }) => (
     )} />
 )
 
-export * from './PrivateRoute';
