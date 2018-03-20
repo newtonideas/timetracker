@@ -10,4 +10,6 @@ Rest API: https://github.com/newtonideas/timetracker/wiki/Rest-API
 
 Mockups: https://github.com/newtonideas/timetracker/tree/master/design/mockups  
 
+Mockup navigation in Invision: https://invis.io/RVEXN4O8Y
+
 Classes diagram: https://github.com/newtonideas/timetracker/blob/master/uml.png
