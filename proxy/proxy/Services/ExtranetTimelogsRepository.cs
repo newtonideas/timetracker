@@ -128,7 +128,7 @@ namespace proxy.Services {
                 }
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    throw new Exception("Invalid id");
+                    throw new Exception("Timelog not found");
                 }
 
                 var stringResult = await response.Content.ReadAsStringAsync();
@@ -195,6 +195,7 @@ namespace proxy.Services {
                     }
                 }
                     
+                timelogs.Sort((x,y) => DateTime.Compare(y.Start_on, x.Start_on));
                 return timelogs;
             }
         }

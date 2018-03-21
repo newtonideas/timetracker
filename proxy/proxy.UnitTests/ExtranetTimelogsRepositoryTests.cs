@@ -336,7 +336,7 @@ namespace proxy.UnitTests
             catch (AggregateException ae)
             {
                 //Assert
-                Assert.AreEqual(ae.InnerException.Message, "Invalid id");
+                Assert.AreEqual(ae.InnerException.Message, "Timelog not found");
             }
         }
     }

@@ -22,8 +22,7 @@ namespace proxy.Data
 
         public async Task<int> SaveChangesAsync()
         {
-            await _db.SaveChangesAsync();
-            return 1;
+            return await _db.SaveChangesAsync();
         }
 
         public async Task<object> SingleOrDefaultAsync(string id)
