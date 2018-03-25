@@ -23,6 +23,7 @@ class App extends React.Component {
             <div className="jumbotron">
                 <div className="container">
                     <div className="col-sm-8 col-sm-offset-2">
+
                         <Router history={history}>
                             <div>
                                 <Route path="/login" component={LoginPage} />

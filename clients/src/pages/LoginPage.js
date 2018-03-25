@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { Menu } from '../components/Menu'
+
 
 
 class LoginPage extends React.Component {
@@ -22,6 +24,7 @@ class LoginPage extends React.Component {
         const { username, password, submitted } = this.state;
         return (
             <div className="col-md-6 col-md-offset-3">
+                <Menu />
                 <h2>Login</h2>
                 <form name="form" >
                     <div className={'form-group' + (submitted && !username ? ' has-error' : '')}>

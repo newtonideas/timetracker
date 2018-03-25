@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "jquery": "^3.3.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "latest",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.1",
     "redux-logger": "^3.0.6",
-    "redux-thunk": "latest"
+    "redux-thunk": "latest",
+    "jquery.mmenu": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
