@@ -1,0 +1,25 @@
+body {
+	font-family: 'IBM Plex Sans Condensed', sans-serif;
+	
+}
+
+@media only screen and (max-width: 480px) {
+	.text-center{
+		height: 30vh;
+    	display: flex;
+    	justify-content: center;
+    	align-items: center;
+    	font-family: 'IBM Plex Sans Condensed', sans-serif;
+    	font-size:large;
+    	color: #26404C;
+	}
+	
+	.img-fluid{
+		display: block;
+   		margin-left: auto;
+    	margin-right: auto;
+    	margin-top: 20%;
+		width: 60%;
+	}
+}
+
