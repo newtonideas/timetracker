@@ -24,7 +24,7 @@ namespace proxy.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromHeader] string token, [FromRoute]string project_id)
+        public async Task<IActionResult> GetAll([FromHeader]string token, [FromRoute]string project_id)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace proxy.Controllers
             t.Project_id = "87b47424-1c46-473b-81c1-a1b52123b7ce";
             t.Task_id = "49d2dc7f - e9df - 4b10 - ac82 - 5c8cc0220ee1";
             t.User_id = "e981a503-1536-4a48-920d-6c464f596cbc";
-            t.Title = "eee rock";
+            t.Title = "update test";
             DateTime startDate = new DateTime(2018, 3, 3, 10, 30, 16);
             DateTime endDate = new DateTime(2018, 3, 3, 10, 45, 16);
             t.Start_on = startDate;

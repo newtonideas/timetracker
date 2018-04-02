@@ -1,0 +1,73 @@
+body {
+	font-family: 'IBM Plex Sans Condensed', sans-serif;
+	
+}
+
+@media only screen and (max-width: 480px) {
+	.input{
+		font-family: 'Oswald', sans-serif;
+	    margin: 0;
+	    padding: 3px;
+	    width: 100%;
+	    margin-bottom: 10px;
+	    background-color: #f2f2f2;
+	    -webkit-box-shadow: 6px 10px 8px -3px rgb(208, 204, 208);
+		-moz-box-shadow: 6px 10px 8px -3px rgb(208, 204, 208);
+		box-shadow: 6px 10px 8px -3px rgb(208, 204, 208);
+		border-radius: 10px;
+		border: none;
+	}
+	.img-fluid{
+		display: block;
+   		margin-left: auto;
+    	margin-right: auto;
+    	margin-top: 20%;
+		width: 60%;
+	}
+	.login-form {
+		display: block;
+   		margin-left: auto;
+    	margin-right: auto;
+		margin-top: 5%;
+		width: 80%;	
+		font-family: 'Oswald', sans-serif;
+		font-size: 16px;
+		color: #26404C;
+		font-weight: bold;
+	}
+	.signin{
+		font-family: 'Oswald', sans-serif;
+	   	font-size: 100%;
+	   	text-align: center;
+	   	margin-top: 3%;
+	   	margin-left: 15%;
+	   	width: 70%;
+	   	height: 32px;
+		border: none;
+		-webkit-box-shadow: 4px 7px 6px rgb(208, 204, 208);
+		-moz-box-shadow: 4px 7px 6px rgb(208, 204, 208);
+		box-shadow: 4px 7px 6px rgb(208, 204, 208);
+		color: #f2f2f2;
+		background: #26404C;
+	}
+	.footer{
+		position: fixed;
+	   left: 0;
+	   bottom: 0;
+	   width: 100%;
+	   text-align: center;
+	   margin-bottom: 2%;
+	}
+	.privacy{
+		font-family: 'Oswald', sans-serif;
+		font-size: 12px;
+		color: #26404C
+		font-weight: bold;
+	}
+	.newton{
+		font-family: 'Oswald', sans-serif;;
+		font-size: 10px;
+		color: #B7C4CA;
+	}
+}
+

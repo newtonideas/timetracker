@@ -45,6 +45,7 @@ namespace proxy
 
             services.AddScoped<ITokenStorage, DbTokenStorage>();
 
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

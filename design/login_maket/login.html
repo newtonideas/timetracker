@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="./style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Condensed:300" 
+    rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Oswald:400" rel="stylesheet">
+  </head>
+  <body>
+
+    <div class="container-fluid">
+     <img src="logo.png" alt="Logo" class="img-fluid">
+      <form id="login" action="/action_page.php" class="login-form">
+            <!-- login class = "login-form"-->
+            <label for="login">USERNAME</label>
+            <input type="text" name="login" required class="input">
+            
+            <!-- password class = "pass-form"-->
+            <label for="password">PASSWORD</label>
+            <input type="text" placeholder="********" name="password" required class="input">
+          
+            <input type="submit" value="Sign in" form="login" class="signin">
+      </form>
+        
+      <div class="footer">
+        <div class="privacy">PRIVACY POLICY</div>
+        <div class="newton">Newtonideas corp.</div>
+      </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/scripts.js"></script>
+  </body>
+</html>
