@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+	  <title>Edit Time Tracker</title>
+	  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	  <script type="text/javascript" src="jquery.timepicker.js"></script>
+	  <link rel="stylesheet" type="text/css" href="jquery.timepicker.css" />
+	  <script type="text/javascript" src="bootstrap-datepicker.js"></script>
+	  <link rel="stylesheet" type="text/css" href="bootstrap-datepicker.css" />
+	  <script type="text/javascript" src="site.js"></script>
+
+	  <script src="http://jonthornton.github.io/Datepair.js/dist/datepair.js"></script>
+	  <script src="http://jonthornton.github.io/Datepair.js/dist/jquery.datepair.js"></script>
+	
+	  <script>
+	  $(function(){
+		$('#datepair .time').timepicker({
+				 'step': 5,
+				  'scrollDefault': 'now'	 
+			});
+
+			$('#datepair .date').datepicker({
+				'format': 'm/d/yyyy',
+				'autoclose': true
+			});
+
+			$('#datepair').datepair();
+			});
+	  </script> 
+				
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      
+      <link rel="stylesheet" type="text/css" href="style.css">
+      <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans+Condensed:300" 
+         rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Oswald:400" rel="stylesheet">
+       
+   </head>
+   <body>
+      <div class="edittracker-container">
+         <form id="edittracker" action="/action_page.php" class="edittracker-form">
+            <div class="up-panel">
+                <i class="i"></i>
+               <label for="newtracker">EDIT TIME TRACKER</label>
+            </div>
+            <div class="input-box">
+                <label class="project">PROJECT</label>
+               <select name="project" class="select-form" >
+               <option value="extranet">EXTRANET</option>
+               <option value="upp">UPP</option>
+            </select>
+            </div>
+            <div class="input-box">
+               <label>TASK</label>
+            <select name="task" class="select-form" >
+               <option value="createdesign">Create design</option>
+               <option value="mockups">Mockups</option>
+               <option value="New Time Tracker">New Time Tracker</option>
+            </select>
+			</div>
+            <div class="input-box">
+               <label>STATUS</label>
+               <input type="text" class="input-form" id="status" name="status" placeholder="" required>
+            </div>
+			<div class="input-box">
+				<label>STARTED AT:</label>
+				
+					<div id="datepair">
+					<input type="text" class="date start" name="date-start" placeholder="Choose date..."/>
+					<input type="text" class="time start" placeholder="Choose time..."/>
+					<p class="timeend">FINISHED AT:</p>
+					<input type="text" class="date end" placeholder="Choose date..." />
+					<input type="text" class="time end" placeholder="Choose time..."/>
+					</div> 
+				<div class="totaltime">TOTAL: 2h 10m</div>	
+			</div>
+         </form>
+      </div>
+      <!-- Buttons -->
+      <div class="btn container">
+         <div type="button" class="save-btn">SAVE</div>
+      </div>
+      <div class="btn container">
+         <div type="button" class="cancel-btn">CANCEL</div>
+      </div>
+       <footer>
+               <label class="footer-form">TASK 1.2 Creating mockups</label>
+                <label class="footer-right-form">01:12:34</label>
+       </footer>
+   </body>
+   
+</html>
