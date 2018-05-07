@@ -12,9 +12,11 @@ namespace proxy.AuthServices
         [Key]
         public string Token { get; set; }
         [Required]
-        public string Auth { get; set; }
-        [Required]
         public string SessionId { get; set; }
+        [Required]
+        public string FedAuth { get; set; }
+        [Required]
+        public string FedAuth1 { get; set; }
 
     }
 }

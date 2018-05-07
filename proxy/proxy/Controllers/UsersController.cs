@@ -26,16 +26,16 @@ namespace proxy.Controllers
         }
 
         [HttpGet("[action]")]
-        public async System.Threading.Tasks.Task<string> AccessToken(string login, string password)
+        public async System.Threading.Tasks.Task<string> AccessToken(string email, string password)
         {
-            return await AccessTokenPost(login, password);
+            return await AccessTokenPost(email, password);
         }
 
         [HttpPost("[action]")]
         [ActionName("AccessToken")]
-        public async System.Threading.Tasks.Task<string> AccessTokenPost(string login, string password)
+        public async System.Threading.Tasks.Task<string> AccessTokenPost(string email, string password)
         {
-            return await _authService.createAuthCredentials(login, password);
+            return await _authService.createAuthCredentials(email, password);
         }
 
         [HttpGet]

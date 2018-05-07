@@ -35,7 +35,7 @@ namespace proxy.UnitTests
         public void GetAuthCredentials_ValidToken_ReturnsAuthCredentials()
         {
             //Arrange
-            AccessToken accessToken = new AccessToken() { Auth = "auth", SessionId = "sessionId", Token = "token" };
+            AccessToken accessToken = new AccessToken() { FedAuth = "auth", FedAuth1 = "auth", SessionId = "sessionId", Token = "token" };
             //stub for SingleOrDefaultAsync() method that should return AccessToken from the database
             mockTokenStorage.Setup(m => m.SingleOrDefaultAsync(It.IsAny<string>())).Returns(Task.FromResult((object)accessToken));
 
